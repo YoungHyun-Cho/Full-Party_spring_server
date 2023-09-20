@@ -1,4 +1,4 @@
-package com.full_party.party.dto;
+package com.full_party.quest.dto;
 
 import com.full_party.values.Coordinates;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 @Getter
-public class PartyInfo {
+public class QuestInfo {
 
     private String name;
     private String image;
