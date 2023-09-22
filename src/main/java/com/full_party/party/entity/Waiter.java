@@ -8,11 +8,11 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-public class UserParty extends Auditable {
+public class Waiter extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userPartyId;
+    private Long waiterId;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")
@@ -24,7 +24,4 @@ public class UserParty extends Auditable {
 
     @Column(nullable = false)
     private String message;
-
-    @Column(nullable = false)
-    private Boolean isReviewed;
 }

@@ -1,9 +1,13 @@
 package com.full_party.comment.entity;
 
 import com.full_party.audit.Auditable;
+import com.full_party.party.entity.Party;
+import com.full_party.user.entity.User;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -12,6 +16,17 @@ public class Comment extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
+
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "PARTY_ID")
+    private Party party;
+
+    @OneToMany(mappedBy = "comment")
+    private List<Reply> replies = new ArrayList<>();
 
     @Column(nullable = false)
     private String content;

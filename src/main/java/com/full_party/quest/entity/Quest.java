@@ -1,6 +1,8 @@
 package com.full_party.quest.entity;
 
 import com.full_party.audit.Auditable;
+import com.full_party.party.entity.Party;
+import com.full_party.user.entity.User;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -13,6 +15,15 @@ public class Quest extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long questId;
+
+    // 퀘스트 게시자
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    private User user;
+
+    @OneToOne
+    @JoinColumn(name = "PARTY_ID")
+    private Party party;
 
     @Column(nullable = false)
     private String name;
