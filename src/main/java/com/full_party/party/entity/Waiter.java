@@ -12,7 +12,7 @@ public class Waiter extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long waiterId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")

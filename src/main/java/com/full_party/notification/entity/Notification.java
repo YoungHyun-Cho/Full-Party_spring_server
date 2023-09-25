@@ -13,7 +13,7 @@ public class Notification extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long notificationId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")

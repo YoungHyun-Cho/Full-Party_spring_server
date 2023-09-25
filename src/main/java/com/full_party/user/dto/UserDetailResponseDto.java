@@ -3,20 +3,17 @@ package com.full_party.user.dto;
 import com.full_party.values.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserInfo {
-    private String email;
+public class UserDetailResponseDto {
+
     private String userName;
-    private String password;
-    private String profileImage;
+    private String email;
+    private String mobile;
+    private String address;
     private Date birth;
     private Gender gender;
-    private String address;
-    private String mobile;
 }

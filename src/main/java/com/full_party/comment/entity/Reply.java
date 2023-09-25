@@ -12,7 +12,7 @@ public class Reply extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long replyId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")

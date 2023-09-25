@@ -13,7 +13,7 @@ public class Heart extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long heartId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")

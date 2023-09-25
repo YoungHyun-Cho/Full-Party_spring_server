@@ -5,7 +5,6 @@ import com.full_party.comment.entity.Comment;
 import com.full_party.heart.entity.Heart;
 import com.full_party.quest.entity.Quest;
 import com.full_party.values.PartyState;
-import com.full_party.tag.entity.Tag;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -18,7 +17,7 @@ public class Party extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long partyId;
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "QUEST_ID")
@@ -35,9 +34,6 @@ public class Party extends Auditable {
 
     @OneToMany(mappedBy = "party")
     private List<Waiter> waiters = new ArrayList<>();
-
-    @OneToMany(mappedBy = "party")
-    private List<Tag> tags = new ArrayList<>();
 
     @Column(nullable = false)
     private Integer memberLimit;

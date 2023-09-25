@@ -15,7 +15,7 @@ public class Comment extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long commentId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")

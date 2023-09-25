@@ -8,15 +8,18 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserPostDto {
-    private String email;
+@NoArgsConstructor
+public class UserPatchResponseDto {
+
     private String userName;
-    private String password;
     private String profileImage;
-    private Date birth;
-    private Gender gender;
     private String address;
     private String mobile;
+    private Date birth;
+    private Gender gender;
 }
+
+/*
+ * password는 뺌. -> 굳이 응답으로 전송 필요 없음.
+ * */
