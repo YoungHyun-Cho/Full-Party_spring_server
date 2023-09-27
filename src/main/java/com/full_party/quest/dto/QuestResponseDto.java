@@ -9,11 +9,9 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class QuestDto {
-    private Long questId;
+public class QuestResponseDto {
     private String name;
     private String image;
-    private Integer memberLimit;
     private String content;
     private String region;
     private String location;
@@ -24,5 +22,3 @@ public class QuestDto {
     private String privateLink;
     private ArrayList<String> tags;
 }
-
-// userId는 추후 토큰으로 전달 받도록

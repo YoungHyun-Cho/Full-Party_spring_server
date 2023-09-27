@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public class PartyApplyDto {
-
-    @Setter
-    private Long partyId;
-    private Long userId;
+@Setter
+public class WaiterDto {
     private String message;
 }

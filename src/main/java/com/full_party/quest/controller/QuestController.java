@@ -1,11 +1,15 @@
 package com.full_party.quest.controller;
 
+import com.full_party.party.entity.Party;
+import com.full_party.party.service.PartyService;
 import com.full_party.quest.dto.QuestDto;
 import com.full_party.quest.entity.Quest;
 import com.full_party.quest.mapper.QuestMapper;
 import com.full_party.quest.service.QuestService;
 import com.full_party.tag.entity.Tag;
 import com.full_party.tag.service.TagService;
+import com.full_party.user.entity.User;
+import com.full_party.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +24,15 @@ public class QuestController {
 
     private static final String QUEST_DEFAULT_URL = "v1/quests";
     private final QuestService questService;
-    private final QuestMapper questMapper;
     private final TagService tagService;
+    private final PartyService partyService;
+    private final QuestMapper questMapper;
 
-    public QuestController(QuestService questService, QuestMapper questMapper, TagService tagService) {
+    public QuestController(QuestService questService, TagService tagService, PartyService partyService, QuestMapper questMapper) {
         this.questService = questService;
-        this.questMapper = questMapper;
         this.tagService = tagService;
+        this.partyService = partyService;
+        this.questMapper = questMapper;
     }
 
     // # 기본 CRUD
@@ -34,13 +40,19 @@ public class QuestController {
     @PostMapping
     public ResponseEntity postQuest(@RequestBody QuestDto questDto) {
 
-        Quest quest = questService.createQuest(questMapper.questDtoToQuest(questDto), questDto.getTags());
+        Quest mappedQuest = questMapper.questDtoToQuest(questDto);
+
+        Party party = partyService.createParty(mappedQuest, questDto.getMemberLimit());
+
+        ArrayList<Tag> tagList = tagService.createTagList(mappedQuest, questDto.getTags());
+
+        Quest resultQuest = questService.createQuest(mappedQuest, party, tagList);
 
         URI uri =
                 UriComponentsBuilder
                         .newInstance()
                         .path(QUEST_DEFAULT_URL + "/{quest-id}")
-                        .buildAndExpand(quest.getId())
+                        .buildAndExpand(resultQuest.getId())
                         .toUri();
 
         return ResponseEntity.created(uri).build();
@@ -59,7 +71,7 @@ public class QuestController {
 
         Quest quest = questService.findQuest(questId);
 
-        return new ResponseEntity(questMapper.questToQuestDto(quest), HttpStatus.OK);
+        return new ResponseEntity(questMapper.questToQuestResponseDto(quest), HttpStatus.OK);
     }
 
     // 파티장 : 파티 정보 수정
@@ -70,7 +82,7 @@ public class QuestController {
         questDto.setQuestId(questId);
         Quest updatedQuest = questService.updateQuest(questMapper.questDtoToQuest(questDto));
 
-        return new ResponseEntity(questMapper.questToQuestDto(updatedQuest), HttpStatus.OK);
+        return new ResponseEntity(questMapper.questToQuestResponseDto(updatedQuest), HttpStatus.OK);
     }
 
     // 파티장 : 파티 삭제

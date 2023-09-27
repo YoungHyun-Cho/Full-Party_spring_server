@@ -24,6 +24,7 @@ public class Quest extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(insertable = false, updatable = false)
     private Long id;
 
     // 퀘스트 게시자
@@ -31,11 +32,11 @@ public class Quest extends Auditable {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "PARTY_ID")
     private Party party;
 
-    @OneToMany(mappedBy = "quest", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "quest", cascade = CascadeType.ALL)
     private List<Tag> tagList = new ArrayList<>();
 
     @Column(nullable = false)
@@ -43,6 +44,9 @@ public class Quest extends Auditable {
 
     @Column(nullable = false)
     private String image;
+
+    @Column(nullable = false)
+    private String content;
 
     @Column(nullable = false)
     private LocalDateTime startDate;

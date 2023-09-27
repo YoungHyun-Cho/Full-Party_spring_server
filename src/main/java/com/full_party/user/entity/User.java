@@ -1,5 +1,6 @@
 package com.full_party.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.full_party.audit.Auditable;
 import com.full_party.comment.entity.Comment;
 import com.full_party.comment.entity.Reply;
@@ -114,5 +115,9 @@ public class User extends Auditable {
         this.address = newUser.address;
         this.exp = 0;
         this.level = 1;
+    }
+
+    public User(Long id) {
+        this.id = id;
     }
 }

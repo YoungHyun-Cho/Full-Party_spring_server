@@ -17,7 +17,7 @@ public enum Gender {
         this.korGender = gender;
     }
 
-    @JsonValue
+    @JsonValue // 동작 확인 필요 : 여성, 남성이 응답으로 보내지는지 + @JsonValue를 필드 korGender에 붙여도 동일하게 동작하는지
     public String getKorGender() {
         return korGender;
     }

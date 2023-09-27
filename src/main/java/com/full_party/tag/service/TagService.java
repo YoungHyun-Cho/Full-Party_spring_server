@@ -25,7 +25,11 @@ public class TagService {
         ArrayList<Tag> tagList = new ArrayList<>();
 
         tags.stream()
-                .forEach(tagStr -> tagList.add(new Tag(quest, tagStr)));
+                .forEach(tagStr -> {
+                    Tag tag = new Tag(quest, tagStr);
+                    tagRepository.save(tag);
+                    tagList.add(tag);
+                });
 
         return tagList;
     }
