@@ -22,4 +22,9 @@ public class Heart extends Auditable {
     @ManyToOne
     @JoinColumn(name = "PARTY_ID")
     private Party party;
+
+    public Heart(User user, Party party) {
+        this.user = user;
+        this.party = party;
+    }
 }

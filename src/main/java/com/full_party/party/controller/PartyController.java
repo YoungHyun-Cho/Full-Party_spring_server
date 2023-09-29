@@ -105,7 +105,7 @@ public class PartyController {
         return new ResponseEntity(partyMapper.partyToPartyResponseDto(party), HttpStatus.OK);
     }
 
-    // 파티원 리뷰
+    // 파티원 리뷰 -> 보류. 추후 구체적 기능 파악 후 구현
     @PostMapping("/{party-id}/review")
     public ResponseEntity postReview(@PathVariable("party-id") Long partyId) {
 
