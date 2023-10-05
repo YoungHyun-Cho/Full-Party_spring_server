@@ -10,7 +10,9 @@ public enum ExceptionCode {
     TAGS_NOT_FOUND(404, "Tags Not Found"),
     PARTY_EXISTS(409, "Party Exists"),
     WAITER_NOT_FOUND(404, "Waiter Not Found"),
-    USER_PARTY_NOT_FOUND(404, "User Party Not Found");
+    USER_PARTY_NOT_FOUND(404, "User Party Not Found"),
+    COMMENT_NOT_FOUND(404, "Comment Not Found"),
+    REPLY_NOT_FOUND(404, "Reply Not Found");
 
     @Getter
     private Integer status;

@@ -88,6 +88,9 @@ public class User extends Auditable {
     @Column
     private SignUpType signUpType;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList<>();
+
     public User(User beforeUser, User afterUser) {
         this.id = beforeUser.id;
         this.email = beforeUser.email;
@@ -115,6 +118,7 @@ public class User extends Auditable {
         this.address = newUser.address;
         this.exp = 0;
         this.level = 1;
+        this.roles = newUser.roles;
     }
 
     public User(Long id) {

@@ -2,6 +2,13 @@ package com.full_party.comment.controller;
 
 import com.full_party.comment.dto.CommentDto;
 import com.full_party.comment.dto.ReplyDto;
+import com.full_party.comment.entity.Comment;
+import com.full_party.comment.mapper.CommentMapper;
+import com.full_party.comment.service.CommentService;
+import com.full_party.party.entity.Party;
+import com.full_party.party.service.PartyService;
+import com.full_party.user.entity.User;
+import com.full_party.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,10 +17,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/comments")
 public class CommentController {
 
+    private final CommentService commentService;
+    private final CommentMapper commentMapper;
+
+    public CommentController(CommentService commentService, CommentMapper commentMapper) {
+        this.commentService = commentService;
+        this.commentMapper = commentMapper;
+    }
+
     // 댓글 등록
     @PostMapping
-    public ResponseEntity postComment(@RequestBody CommentDto commentDto) {
-        return new ResponseEntity(commentDto, HttpStatus.CREATED);
+    public ResponseEntity postComment(@RequestBody CommentDto commentDto,
+                                      @RequestHeader("user-id") Long userId) {
+
+        commentDto.setUserId(userId);
+
+        Comment comment = commentService.createComment(commentMapper.commentDtoToComment(commentDto));
+
+        return new ResponseEntity(commentMapper.commentToCommentDto(comment), HttpStatus.CREATED);
     }
 
     // 대댓글 등록
@@ -26,8 +47,14 @@ public class CommentController {
     // 댓글 수정
     @PatchMapping("/{comment-id}")
     public ResponseEntity patchComment(@RequestBody CommentDto commentDto,
-                                       @PathVariable("comment-id") Long commentId) {
-        return new ResponseEntity(commentDto, HttpStatus.OK);
+                                       @PathVariable("comment-id") Long commentId,
+                                       @RequestHeader("user-id") Long userId) {
+
+        commentDto.setUserId(userId);
+
+        Comment comment = commentService.updateComment(commentMapper.commentDtoToComment(commentDto));
+
+        return new ResponseEntity(commentMapper.commentToCommentDto(comment), HttpStatus.OK);
     }
 
     // 대댓글 수정
@@ -45,7 +72,7 @@ public class CommentController {
     }
 
     // 대댓글 삭제
-    @DeleteMapping("/{reply-id}")
+    @DeleteMapping("/{comment-id}/reply/{reply-id}")
     public ResponseEntity deleteReply(@PathVariable("reply-id") Long replyId) {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
