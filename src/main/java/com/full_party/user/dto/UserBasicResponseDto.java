@@ -8,6 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserBasicResponseDto {
 
+    private Long id;
     private String userName;
     private String address;
     private String profileImage;

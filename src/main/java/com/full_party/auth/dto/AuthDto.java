@@ -1,11 +1,13 @@
 package com.full_party.auth.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-public class SignInDto {
+@AllArgsConstructor
+@NoArgsConstructor
+public class AuthDto {
+    private Long userId;
     private String email;
     private String password;
 }

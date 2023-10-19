@@ -1,15 +1,21 @@
 package com.full_party.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.full_party.auth.dto.SignInDto;
+import com.full_party.auth.dto.AuthDto;
 import com.full_party.auth.jwt.JwtTokenizer;
 import com.full_party.user.entity.User;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.tomcat.util.http.HeaderUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -35,9 +41,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
         ObjectMapper objectMapper = new ObjectMapper();
-        SignInDto signInDto = objectMapper.readValue(request.getInputStream(), SignInDto.class);
+        AuthDto authDto = objectMapper.readValue(request.getInputStream(), AuthDto.class);
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(signInDto.getEmail(), signInDto.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(authDto.getEmail(), authDto.getPassword());
 
         return authenticationManager.authenticate(authenticationToken);
     }
@@ -54,12 +60,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setHeader("Refresh", refreshToken);
 
         this.getSuccessHandler().onAuthenticationSuccess(request, response, authResult);
+
+//        SecurityContextHolder.getContext().setAuthentication(authResult); // SecurityContextHolder에는 UserDetail이 잘 들어감.
+
+        super.successfulAuthentication(request, response, chain, authResult);
+        chain.doFilter(request, response);
     }
 
     private String delegateAccessToken(User user) {
 
         Map<String, Object> claims = new HashMap<>();
-//        claims.put("userId", user.getId());
+        claims.put("userId", user.getId());
         claims.put("username", user.getEmail());
         claims.put("roles", user.getRoles());
 

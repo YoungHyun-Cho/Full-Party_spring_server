@@ -33,47 +33,6 @@ public class UserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> optionalUser = userRepository.findByEmail(username);
         User foundUser = optionalUser.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
-        return new UserDetail(foundUser);
-    }
-
-    private final class UserDetail extends User implements UserDetails {
-
-        UserDetail(User user) {
-            setId(user.getId());
-            setEmail(user.getEmail());
-//            setPassword(passwordEncoder.encode(user.getPassword()));
-            setPassword(user.getPassword());
-            setRoles(user.getRoles());
-        }
-
-        @Override
-        public Collection<? extends GrantedAuthority> getAuthorities() {
-            return customAuthorityUtils.createAuthorities(this.getRoles());
-        }
-
-        @Override
-        public String getUsername() {
-            return getEmail();
-        }
-
-        @Override
-        public boolean isAccountNonExpired() {
-            return true;
-        }
-
-        @Override
-        public boolean isAccountNonLocked() {
-            return true;
-        }
-
-        @Override
-        public boolean isCredentialsNonExpired() {
-            return true;
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return true;
-        }
+        return new UserDetail(foundUser, customAuthorityUtils);
     }
 }

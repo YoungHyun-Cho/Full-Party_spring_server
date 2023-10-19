@@ -15,6 +15,7 @@ import com.full_party.user.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,19 +43,16 @@ public class QuestService {
 
         ArrayList<Tag> tagList = tagService.findTags(questId);
 
-        for (Tag tag : tagList) {
-            System.out.println("🟥 " + tag.getValue());
-        }
-
         foundQuest.setTagList(tagList);
 
         return foundQuest;
     }
 
-//    public ArrayList<Quest> findQuests() {
-//        // userParty 테이블에서 userId가 일치하는 파티의 partyId와 연관된 quest 조회
-//        // region이 일치하는 quest 조회
-//    }
+    public List<Quest> findLocalQuests(String region) {
+
+        return questRepository.findByRegion(region);
+    }
+
 //
 //    public ArrayList<Quest> findMyQuests(Long userId) {
 //

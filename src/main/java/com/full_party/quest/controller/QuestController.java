@@ -1,8 +1,10 @@
 package com.full_party.quest.controller;
 
+import com.full_party.party.dto.PartyResponseDto;
 import com.full_party.party.entity.Party;
 import com.full_party.party.service.PartyService;
 import com.full_party.quest.dto.QuestDto;
+import com.full_party.quest.dto.QuestResponseDto;
 import com.full_party.quest.entity.Quest;
 import com.full_party.quest.mapper.QuestMapper;
 import com.full_party.quest.service.QuestService;
@@ -17,6 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/quests")
@@ -62,7 +66,28 @@ public class QuestController {
     @GetMapping
     public ResponseEntity getRelatedQuestList(@RequestParam(name = "userId") Long userId,
                                               @RequestParam(name = "region") String region) {
-        return new ResponseEntity(HttpStatus.OK);
+
+        List<QuestResponseDto> myQuests = null; // userParty 테이블에서 userId가 일치하는 파티의 partyId와 연관된 quest 조회 -> PartyService에서 구현하고 여기에서 호출
+        List<QuestResponseDto> localQuests =
+                questService.findLocalQuests(region).stream()
+                        .map(quest -> questMapper.questToQuestResponseDto(quest))
+                        .collect(Collectors.toList());
+
+        /*
+        * partyList API를 quest가 아니라 party Controller에서 받아와서 처리하는 것이 나아 보임.
+        * 또는.. quest랑 party를 DB 상에서 병합해버리는 것도 고려해볼만 함. -> 이게 나아보인다..
+        * 굳이 quest랑 party를 구분할 필요가...
+        *
+        * 필요 작업
+        * 1. 엔티티 클래스 수정
+        *   - Quest를 참조하는 다른 모든 엔티티 수정 필요
+        *   - MySql 삭제 후 재생성 필요
+        * 2. Quest 패키지 컴포넌트를 모두 Party로 변환 및 이동
+        *   - Controller api 고려 필요
+        *
+        * */
+
+        return new ResponseEntity(questMapper.mapToQuestListResponseDto(myQuests, localQuests), HttpStatus.OK);
     }
 
     // 공통 : 파티 정보 조회
