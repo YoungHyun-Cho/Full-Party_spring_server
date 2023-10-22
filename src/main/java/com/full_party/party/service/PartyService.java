@@ -2,19 +2,21 @@ package com.full_party.party.service;
 
 import com.full_party.exception.BusinessLogicException;
 import com.full_party.exception.ExceptionCode;
+import com.full_party.heart.service.HeartService;
 import com.full_party.party.entity.Party;
 import com.full_party.party.entity.UserParty;
 import com.full_party.party.entity.Waiter;
 import com.full_party.party.repository.PartyRepository;
 import com.full_party.party.repository.UserPartyRepository;
 import com.full_party.party.repository.WaiterRepository;
-import com.full_party.quest.entity.Quest;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
-import com.full_party.values.PartyState;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PartyService {
@@ -22,17 +24,68 @@ public class PartyService {
     private final UserPartyRepository userPartyRepository;
     private final WaiterRepository waiterRepository;
     private final UserService userService;
+    private final HeartService heartService;
 
-    public PartyService(PartyRepository partyRepository, UserPartyRepository userPartyRepository, WaiterRepository waiterRepository, UserService userService) {
+    public PartyService(PartyRepository partyRepository, UserPartyRepository userPartyRepository, WaiterRepository waiterRepository, UserService userService, HeartService heartService) {
         this.partyRepository = partyRepository;
         this.userPartyRepository = userPartyRepository;
         this.waiterRepository = waiterRepository;
         this.userService = userService;
+        this.heartService = heartService;
     }
 
-    public Party createParty(Quest quest, Integer memberLimit) {
-        Party party = new Party(quest, memberLimit, PartyState.RECRUITING);
+    public Party createParty(Party party, User user) {
+        party.setUser(user);
         return partyRepository.save(party);
+    }
+
+    // 내가 파티장인 파티와 파티원인 파티를 모두 취합해서 리턴
+    public List<Party> findMyParties(Long userId) {
+
+        List<Party> leadingParties = partyRepository.findByUserId(userId);
+        List<Party> participatingParties = userPartyRepository.findByUserId(userId).stream()
+                .map(userParty -> findParty(userParty.getParty().getId()))
+                .collect(Collectors.toList());
+
+        return Stream.of(leadingParties, participatingParties)
+                .flatMap(el -> el.stream())
+                .collect(Collectors.toList());
+    }
+
+    public List<Party> findLocalParties(Long userId, String region) {
+
+        List<Party> localParties = partyRepository.findByRegion(region);
+
+        setIsHeart(userId, localParties);
+        setMembers(localParties);
+
+        return localParties;
+    }
+
+    private void setIsHeart(Long userId, List<Party> partyList) {
+
+        partyList.stream()
+                .forEach(party -> party.setIsHeart(heartService.checkIsHeart(userId, party.getId())));
+    }
+
+    private void setMembers(List<Party> partyList) {
+        // getPartyMembers => partyId를 받아 파티장을 포함한 파티 전체 멤버를 리스트로 리턴
+        // extractProfileImages => 파티 멤버 리스트를 받아 프로필 이미지 URL만 추출하여 리스트로 리턴
+
+        partyList.stream()
+                .forEach(party -> party.setMembers(getPartyMembers(party.getId())));
+    }
+
+    private List<User> getPartyMembers(Long partyId) {
+
+        User leader = findVerifiedParty(partyId).getUser();
+        List<User> members = userPartyRepository.findByPartyId(partyId).stream()
+                .map(userParty -> userService.findUser(userParty.getId()))
+                .collect(Collectors.toList());
+
+        members.add(0, leader);
+
+        return members;
     }
 
     public Party findParty(Long partyId) {

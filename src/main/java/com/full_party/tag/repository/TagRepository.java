@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
-    List<Tag> findByQuestId(Long questId);
+    List<Tag> findByPartyId(Long partyId);
 }

@@ -3,29 +3,26 @@ package com.full_party.heart.service;
 import com.full_party.heart.entity.Heart;
 import com.full_party.heart.repository.HeartRepository;
 import com.full_party.party.entity.Party;
-import com.full_party.party.service.PartyService;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HeartService {
 
     private final HeartRepository heartRepository;
     private final UserService userService;
-    private final PartyService partyService;
 
-    public HeartService(HeartRepository heartRepository, UserService userService, PartyService partyService) {
+    public HeartService(HeartRepository heartRepository, UserService userService) {
         this.heartRepository = heartRepository;
         this.userService = userService;
-        this.partyService = partyService;
     }
 
-    public Heart createHeart(Long userId, Long partyId) {
-        Heart heart = makeHeartEntity(userId, partyId);
+    public Heart createHeart(User user, Party party) {
+        Heart heart = new Heart(user, party);
         return heartRepository.save(heart);
     }
 
@@ -33,14 +30,15 @@ public class HeartService {
         return heartRepository.findByUserId(userId);
     }
 
-    public void deleteHeart(Long userId, Long partyId) {
-        Heart heart = makeHeartEntity(userId, partyId);
+    public void deleteHeart(User user, Party party) {
+        Heart heart = new Heart(user, party);
         heartRepository.delete(heart);
     }
 
-    private Heart makeHeartEntity(Long userId, Long partyId) {
-        User user = userService.findUser(userId);
-        Party party = partyService.findParty(partyId);
-        return new Heart(user, party);
+    public Boolean checkIsHeart(Long userId, Long partyId) {
+
+        Optional<Heart> optionalHeart = heartRepository.findByUserIdAndPartyId(userId, partyId);
+        if (optionalHeart.isPresent()) return true;
+        else return false;
     }
 }

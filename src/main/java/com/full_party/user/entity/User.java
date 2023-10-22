@@ -6,9 +6,9 @@ import com.full_party.comment.entity.Comment;
 import com.full_party.comment.entity.Reply;
 import com.full_party.heart.entity.Heart;
 import com.full_party.notification.entity.Notification;
+import com.full_party.party.entity.Party;
 import com.full_party.party.entity.UserParty;
 import com.full_party.party.entity.Waiter;
-import com.full_party.quest.entity.Quest;
 import com.full_party.values.Gender;
 import com.full_party.values.SignUpType;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,7 @@ public class User extends Auditable {
     private Long id;
 
     @OneToMany(mappedBy = "user")
-    private List<Quest> quests = new ArrayList<>();
+    private List<Party> parties = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<UserParty> userParties = new ArrayList<>();

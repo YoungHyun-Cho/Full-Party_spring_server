@@ -40,6 +40,7 @@ public class SecurityConfiguration {
     private final UserAuthenticationFailureHandler userAuthenticationFailureHandler;
     private final CustomAuthorityUtils customAuthorityUtils;
     private final UserDetailService userDetailService;
+    public static final String URL = "http://localhost:8080";
 
     public SecurityConfiguration(JwtTokenizer jwtTokenizer, UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserDetailService userDetailService) {
         this.jwtTokenizer = jwtTokenizer;
@@ -111,6 +112,7 @@ public class SecurityConfiguration {
             jwtAuthenticationFilter.setAuthenticationFailureHandler(userAuthenticationFailureHandler);
 
             JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtTokenizer, customAuthorityUtils, userDetailService);
+
 
             builder.addFilter(corsFilter())
                    .addFilter(jwtAuthenticationFilter)

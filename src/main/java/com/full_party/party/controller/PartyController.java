@@ -1,27 +1,113 @@
 package com.full_party.party.controller;
 
-import com.full_party.party.dto.WaiterDto;
-import com.full_party.party.dto.PartyApproveDto;
-import com.full_party.party.dto.PartyPatchDto;
+import com.full_party.heart.service.HeartService;
+import com.full_party.party.dto.*;
 import com.full_party.party.entity.Party;
+import com.full_party.party.entity.UserParty;
 import com.full_party.party.entity.Waiter;
 import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
+import com.full_party.quest.dto.QuestDto;
+import com.full_party.quest.dto.QuestResponseDto;
+import com.full_party.tag.entity.Tag;
+import com.full_party.tag.service.TagService;
+import com.full_party.user.entity.User;
+import com.full_party.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/parties")
 public class PartyController {
 
     private final PartyService partyService;
+    private final TagService tagService;
+    private final UserService userService;
     private final PartyMapper partyMapper;
+    private static final String PARTY_DEFAULT_URL = "/v1/parties";
 
-    public PartyController(PartyService partyService, PartyMapper partyMapper) {
+    public PartyController(PartyService partyService, TagService tagService, UserService userService, PartyMapper partyMapper) {
         this.partyService = partyService;
+        this.tagService = tagService;
+        this.userService = userService;
         this.partyMapper = partyMapper;
     }
+
+    // # 기본 CRUD
+    // 파티장 : 퀘스트 생성
+    @PostMapping
+    public ResponseEntity postParty(@RequestBody PartyPostDto partyPostDto,
+                                    @AuthenticationPrincipal UserDetails userDetails) {
+
+        Party party = partyService.createParty(
+                partyMapper.partyPostDtoToParty(partyPostDto),
+                userService.findUser(userDetails.getUsername())
+        );
+
+        tagService.createTagList(party, partyPostDto.getTags());
+
+        URI uri =
+                UriComponentsBuilder
+                        .newInstance()
+                        .path(PARTY_DEFAULT_URL + "/{party-id}")
+                        .buildAndExpand(party.getId())
+                        .toUri();
+
+        return ResponseEntity.created(uri).build();
+    }
+
+    // 공통 : 내 파티 및 지역 파티 목록 조회
+    @GetMapping
+    public ResponseEntity getRelatedPartyList(@RequestParam(name = "region") String region,
+                                              @AuthenticationPrincipal UserDetails userDetails) {
+
+        Long userId = userService.findUser(userDetails.getUsername()).getId();
+        List<PartyResponseDto> myParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findMyParties(userId));
+        List<PartyResponseDto> localParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findLocalParties(userId, region));
+
+        return new ResponseEntity(partyMapper.mapToPartyListResponseDto(myParties, localParties), HttpStatus.OK);
+    }
+//
+//    // 공통 : 파티 정보 조회
+//    @GetMapping("/{quest-id}")
+//    public ResponseEntity getQuestInfo(@PathVariable("quest-id") Long questId) {
+//
+//        Quest quest = questService.findQuest(questId);
+//
+//        return new ResponseEntity(questMapper.questToQuestResponseDto(quest), HttpStatus.OK);
+//    }
+//
+//    // 파티장 : 파티 정보 수정
+//    @PatchMapping("/{quest-id}")
+//    public ResponseEntity patchQuestInfo(@PathVariable("quest-id") Long questId,
+//                                         @RequestBody QuestDto questDto) {
+//
+//        questDto.setQuestId(questId);
+//        Quest updatedQuest = questService.updateQuest(questMapper.questDtoToQuest(questDto));
+//
+//        return new ResponseEntity(questMapper.questToQuestResponseDto(updatedQuest), HttpStatus.OK);
+//    }
+//
+//    // 파티장 : 파티 삭제
+//    @DeleteMapping("/{quest-id}")
+//    public ResponseEntity deleteQuest(@PathVariable("quest-id") Long questId) {
+//
+//        questService.deleteQuest(questId);
+//
+//        return new ResponseEntity(HttpStatus.NO_CONTENT);
+//    }
+
+    // 🟥 여기까지 기존 quest controller
 
     // 참여 신청
 //    @PostMapping("/{party-id}/application")
@@ -94,6 +180,7 @@ public class PartyController {
     }
 
     // 파티 상태 변경(모집 완료 / 파티 완료 / 재모집) & 멤버 리밋 변경
+    // 파티장의 파티 정보 수정도 포함해야 함.
     @PatchMapping("/{party-id}")
     public ResponseEntity patchParty(@PathVariable("party-id") Long partyId,
                                      @RequestBody PartyPatchDto partyPatchDto) {

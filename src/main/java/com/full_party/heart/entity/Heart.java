@@ -4,11 +4,13 @@ import com.full_party.audit.Auditable;
 import com.full_party.party.entity.Party;
 import com.full_party.user.entity.User;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Heart extends Auditable {
 
     @Id

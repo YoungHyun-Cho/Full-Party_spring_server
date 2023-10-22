@@ -1,7 +1,7 @@
 package com.full_party.tag.entity;
 
 import com.full_party.audit.Auditable;
-import com.full_party.quest.entity.Quest;
+import com.full_party.party.entity.Party;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,14 +19,14 @@ public class Tag extends Auditable {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "QUEST_ID")
-    private Quest quest;
+    @JoinColumn(name = "PARTY_ID")
+    private Party party;
 
     @Column(nullable = false)
     private String value;
 
-    public Tag(Quest quest, String value) {
-        this.quest = quest;
+    public Tag(Party party, String value) {
+        this.party = party;
         this.value = value;
     }
 }
