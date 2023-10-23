@@ -40,7 +40,7 @@ public class SecurityConfiguration {
     private final UserAuthenticationFailureHandler userAuthenticationFailureHandler;
     private final CustomAuthorityUtils customAuthorityUtils;
     private final UserDetailService userDetailService;
-    public static final String URL = "http://localhost:8080";
+    public static final String URL = "https://localhost:8080";
 
     public SecurityConfiguration(JwtTokenizer jwtTokenizer, UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserDetailService userDetailService) {
         this.jwtTokenizer = jwtTokenizer;
@@ -80,10 +80,13 @@ public class SecurityConfiguration {
 //        corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
 //        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE"));
 
-        corsConfiguration.addAllowedOriginPattern("http://localhost:3000"); // 로컬 프론트에서 접근
+        corsConfiguration.addAllowedOriginPattern("https://localhost:3000"); // 로컬 프론트에서 접근
+
+        corsConfiguration.setAllowCredentials(true);
 
         corsConfiguration.addExposedHeader("Authorization");
         corsConfiguration.addExposedHeader("Refresh");
+        corsConfiguration.addExposedHeader("Set-Cookie");
 
         corsConfiguration.addAllowedHeader("*");
 

@@ -3,6 +3,7 @@ package com.full_party.party.mapper;
 import com.full_party.party.dto.*;
 import com.full_party.party.entity.Party;
 import com.full_party.party.entity.Waiter;
+import com.full_party.tag.entity.Tag;
 import com.full_party.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,6 +19,8 @@ public interface PartyMapper {
 
     Party partyPatchDtoToParty(PartyPatchDto partyPatchDto);
 
+    @Mapping(source = "tagList", target = "tags", qualifiedByName = "TagListToStringList")
+    @Mapping(source = "comments", target = "comments", ignore = true)
     PartyResponseDto partyToPartyResponseDto(Party party);
 //    @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToTempUser")
 //    @Mapping(source = "partyId", target = "party", qualifiedByName = "partyIdToTempParty")
@@ -56,6 +59,14 @@ public interface PartyMapper {
 
         return partyList.stream()
                 .map(party -> partyToPartyResponseDto(party))
+                .collect(Collectors.toList());
+    }
+
+    @Named("TagListToStringList")
+    default List<String> TagListToStringList(List<Tag> tagList) {
+
+        return tagList.stream()
+                .map(tag -> tag.getValue())
                 .collect(Collectors.toList());
     }
 }

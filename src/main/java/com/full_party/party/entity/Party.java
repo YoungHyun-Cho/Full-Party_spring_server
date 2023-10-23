@@ -92,7 +92,10 @@ public class Party extends Auditable {
     private Boolean isHeart; // 임시 값 저장을 위한 필드 -> transient
 
     @Transient
-    private List<User> members; // 파티원 리스트
+    private List<User> memberList; // 파티원 리스트
+
+    @Transient
+    private List<User> waiterList; // 대기자 리스트
 
     /*
     * @Transient 어노테이션은 JPA에서 엔티티 클래스의 특정 필드를 데이터베이스 테이블의 칼럼으로 인식하지 않도록 하는 데 사용됩니다. 즉, 이 어노테이션을 사용하면 해당 필드는 데이터베이스에 저장되지 않습니다. 대신, 일시적인 데이터나 계산된 값과 같이 영속성을 유지할 필요가 없는 필드에 대해 사용됩니다.

@@ -1,5 +1,6 @@
 package com.full_party.party.service;
 
+import com.full_party.comment.service.CommentService;
 import com.full_party.exception.BusinessLogicException;
 import com.full_party.exception.ExceptionCode;
 import com.full_party.heart.service.HeartService;
@@ -25,13 +26,15 @@ public class PartyService {
     private final WaiterRepository waiterRepository;
     private final UserService userService;
     private final HeartService heartService;
+    private final CommentService commentService;
 
-    public PartyService(PartyRepository partyRepository, UserPartyRepository userPartyRepository, WaiterRepository waiterRepository, UserService userService, HeartService heartService) {
+    public PartyService(PartyRepository partyRepository, UserPartyRepository userPartyRepository, WaiterRepository waiterRepository, UserService userService, HeartService heartService, CommentService commentService) {
         this.partyRepository = partyRepository;
         this.userPartyRepository = userPartyRepository;
         this.waiterRepository = waiterRepository;
         this.userService = userService;
         this.heartService = heartService;
+        this.commentService = commentService;
     }
 
     public Party createParty(Party party, User user) {
@@ -70,13 +73,12 @@ public class PartyService {
 
     private void setMembers(List<Party> partyList) {
         // getPartyMembers => partyId를 받아 파티장을 포함한 파티 전체 멤버를 리스트로 리턴
-        // extractProfileImages => 파티 멤버 리스트를 받아 프로필 이미지 URL만 추출하여 리스트로 리턴
 
         partyList.stream()
-                .forEach(party -> party.setMembers(getPartyMembers(party.getId())));
+                .forEach(party -> party.setMemberList(findPartyMembers(party.getId())));
     }
 
-    private List<User> getPartyMembers(Long partyId) {
+    private List<User> findPartyMembers(Long partyId) {
 
         User leader = findVerifiedParty(partyId).getUser();
         List<User> members = userPartyRepository.findByPartyId(partyId).stream()
@@ -89,7 +91,12 @@ public class PartyService {
     }
 
     public Party findParty(Long partyId) {
-        return findVerifiedParty(partyId);
+
+        Party party = findVerifiedParty(partyId);
+        party.setMemberList(findPartyMembers(partyId));
+        party.setWaiterList(findWaiters(partyId));
+
+        return party;
     }
 
     public Party updateParty(Party party) {
@@ -141,6 +148,13 @@ public class PartyService {
 
     private Waiter findWaiter(Long userId, Long partyId) {
         return findVerifiedWaiter(userId, partyId);
+    }
+
+    private List<User> findWaiters(Long partyId) {
+
+        return waiterRepository.findByPartyId(partyId).stream()
+                .map(waiter -> userService.findUser(waiter.getUser().getId()))
+                .collect(Collectors.toList());
     }
 
     private Waiter findVerifiedWaiter(Long userId, Long partyId) {

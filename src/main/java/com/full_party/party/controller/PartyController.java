@@ -1,28 +1,24 @@
 package com.full_party.party.controller;
 
-import com.full_party.heart.service.HeartService;
+import com.full_party.comment.dto.CommentReplyDto;
+import com.full_party.comment.dto.CommentResponseDto;
+import com.full_party.comment.mapper.CommentMapper;
+import com.full_party.comment.service.CommentService;
 import com.full_party.party.dto.*;
 import com.full_party.party.entity.Party;
-import com.full_party.party.entity.UserParty;
 import com.full_party.party.entity.Waiter;
 import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
-import com.full_party.quest.dto.QuestDto;
-import com.full_party.quest.dto.QuestResponseDto;
-import com.full_party.tag.entity.Tag;
 import com.full_party.tag.service.TagService;
-import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,14 +29,18 @@ public class PartyController {
     private final PartyService partyService;
     private final TagService tagService;
     private final UserService userService;
+    private final CommentService commentService;
     private final PartyMapper partyMapper;
+    private final CommentMapper commentMapper;
     private static final String PARTY_DEFAULT_URL = "/v1/parties";
 
-    public PartyController(PartyService partyService, TagService tagService, UserService userService, PartyMapper partyMapper) {
+    public PartyController(PartyService partyService, TagService tagService, UserService userService, CommentService commentService, PartyMapper partyMapper, CommentMapper commentMapper) {
         this.partyService = partyService;
         this.tagService = tagService;
         this.userService = userService;
+        this.commentService = commentService;
         this.partyMapper = partyMapper;
+        this.commentMapper = commentMapper;
     }
 
     // # 기본 CRUD
@@ -77,15 +77,26 @@ public class PartyController {
 
         return new ResponseEntity(partyMapper.mapToPartyListResponseDto(myParties, localParties), HttpStatus.OK);
     }
-//
-//    // 공통 : 파티 정보 조회
-//    @GetMapping("/{quest-id}")
-//    public ResponseEntity getQuestInfo(@PathVariable("quest-id") Long questId) {
-//
-//        Quest quest = questService.findQuest(questId);
-//
-//        return new ResponseEntity(questMapper.questToQuestResponseDto(quest), HttpStatus.OK);
-//    }
+
+    // 공통 : 파티 정보 조회
+    @GetMapping("/{party-id}")
+    public ResponseEntity getPartyInfo(@PathVariable("party-id") Long partyId) {
+
+        Party party = partyService.findParty(partyId);
+        PartyResponseDto partyResponseDto = partyMapper.partyToPartyResponseDto(party);
+
+        commentService.findComments(partyId).stream()
+                .map(comment -> commentMapper.commentToCommentResponseDto(comment))
+                .forEach(commentResponseDto -> {
+                    List<CommentResponseDto> replies = commentService.findReplies(commentResponseDto.getId()).stream()
+                            .map(reply -> commentMapper.replyToCommentResponseDto(reply))
+                            .collect(Collectors.toList());
+                    partyResponseDto.getComments().add(new CommentReplyDto(commentResponseDto, replies));
+                }
+        );
+
+        return new ResponseEntity(partyResponseDto, HttpStatus.OK);
+    }
 //
 //    // 파티장 : 파티 정보 수정
 //    @PatchMapping("/{quest-id}")

@@ -1,11 +1,12 @@
 package com.full_party.party.dto;
 
+import com.full_party.comment.dto.CommentReplyDto;
 import com.full_party.user.dto.UserBasicResponseDto;
 import com.full_party.values.Coordinates;
-import com.full_party.values.PartyState;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,5 +25,8 @@ public class PartyResponseDto {
     private String location;
     private Coordinates coordinates;
     private Boolean isHeart;
-    private List<UserBasicResponseDto> members; // 제공에 필요한 정보만 mapper에서 추출
+    private List<CommentReplyDto> comments = new ArrayList<>();
+    private List<String> tags;
+    private List<UserBasicResponseDto> memberList;
+    private List<UserBasicResponseDto> waiterList;
 }

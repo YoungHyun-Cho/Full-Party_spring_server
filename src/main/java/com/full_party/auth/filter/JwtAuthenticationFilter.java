@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.tomcat.util.http.HeaderUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -58,6 +60,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.setHeader("Authorization", "Bearer " + accessToken);
         response.setHeader("Refresh", refreshToken);
+//        response.addCookie(createCookie("token", accessToken, 60 * 60));
+//        response.addCookie(createCookie("refresh", refreshToken, 60 * 60 * 3));
+
+        response.addHeader("Set-Cookie", createCookie("token", accessToken, 60 * 60).toString());
+        response.addHeader("Set-Cookie", createCookie("refresh", refreshToken, 60 * 60 * 3).toString());
 
         this.getSuccessHandler().onAuthenticationSuccess(request, response, authResult);
 
@@ -65,6 +72,27 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         super.successfulAuthentication(request, response, chain, authResult);
         chain.doFilter(request, response);
+    }
+
+    private ResponseCookie createCookie(String name, String value, Integer maxAge) {
+
+//        Cookie cookie = new Cookie(name, value);
+//        cookie.setDomain("localhost");
+//        cookie.setPath("/");
+//        cookie.setMaxAge(maxAge);
+//        cookie.setHttpOnly(true);
+
+        return ResponseCookie.from(name, value)
+                .domain("localhost")
+                .path("/")
+                .sameSite("None")
+                .maxAge(maxAge)
+                .secure(true)
+                .build();
+
+//        return cookie;
+
+        // 🟥 HTTPS 적용 고려해보자... 어차피 해야 하니까
     }
 
     private String delegateAccessToken(User user) {

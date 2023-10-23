@@ -1,7 +1,9 @@
 package com.full_party.comment.mapper;
 
-import com.full_party.comment.dto.CommentDto;
+import com.full_party.comment.dto.CommentPostDto;
+import com.full_party.comment.dto.CommentResponseDto;
 import com.full_party.comment.entity.Comment;
+import com.full_party.comment.entity.Reply;
 import com.full_party.party.entity.Party;
 import com.full_party.user.entity.User;
 import org.mapstruct.Mapper;
@@ -13,11 +15,15 @@ public interface CommentMapper {
 
     @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToUser")
     @Mapping(source = "partyId", target = "party", qualifiedByName = "partyIdToParty")
-    Comment commentDtoToComment(CommentDto commentDto);
+    Comment commentDtoToComment(CommentPostDto commentDto);
 
     @Mapping(source = "user", target = "userId", qualifiedByName = "userToUserId")
     @Mapping(source = "party", target = "partyId", qualifiedByName = "partyToPartyId")
-    CommentDto commentToCommentDto(Comment comment);
+    CommentPostDto commentToCommentDto(Comment comment);
+
+    CommentResponseDto commentToCommentResponseDto(Comment comment);
+
+    CommentResponseDto replyToCommentResponseDto(Reply reply);
 
     @Named("userIdToUser")
     default User userIdToUser(Long userId) {
