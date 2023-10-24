@@ -82,7 +82,7 @@ public class SecurityConfiguration {
 
         corsConfiguration.addAllowedOriginPattern("https://localhost:3000"); // 로컬 프론트에서 접근
 
-        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowCredentials(true); // 셋쿠키 사용하려면 클라이언트쪽에서도, 백엔드 쪽에서도 credential을 포함하도록 설정해야 함.
 
         corsConfiguration.addExposedHeader("Authorization");
         corsConfiguration.addExposedHeader("Refresh");

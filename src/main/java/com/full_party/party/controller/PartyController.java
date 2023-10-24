@@ -72,7 +72,7 @@ public class PartyController {
                                               @AuthenticationPrincipal UserDetails userDetails) {
 
         Long userId = userService.findUser(userDetails.getUsername()).getId();
-        List<PartyResponseDto> myParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findMyParties(userId));
+        List<PartyResponseDto> myParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findProgressingMyParty(userId));
         List<PartyResponseDto> localParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findLocalParties(userId, region));
 
         return new ResponseEntity(partyMapper.mapToPartyListResponseDto(myParties, localParties), HttpStatus.OK);

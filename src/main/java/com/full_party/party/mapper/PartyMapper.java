@@ -9,7 +9,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
@@ -50,6 +52,14 @@ public interface PartyMapper {
 //        return party.getId();
 //    }
 
+    @Named("TagListToStringList")
+    default List<String> TagListToStringList(List<Tag> tagList) {
+
+        return tagList.stream()
+                .map(tag -> tag.getValue())
+                .collect(Collectors.toList());
+    }
+
     default PartyListResponseDto mapToPartyListResponseDto(List<PartyResponseDto> myParties, List<PartyResponseDto> localParties) {
 
         return new PartyListResponseDto(myParties, localParties);
@@ -62,11 +72,14 @@ public interface PartyMapper {
                 .collect(Collectors.toList());
     }
 
-    @Named("TagListToStringList")
-    default List<String> TagListToStringList(List<Tag> tagList) {
+    default Map<String, List<PartyResponseDto>> mapRelatedPartyMap(List<Party> leadingParties, List<Party> participatingParties, List<Party> completedParties) {
 
-        return tagList.stream()
-                .map(tag -> tag.getValue())
-                .collect(Collectors.toList());
+        Map<String, List<PartyResponseDto>> relatedParties = new HashMap<>();
+
+        relatedParties.put("leadingParties", mapEachPartyToPartyResponseDto(leadingParties));
+        relatedParties.put("participatingParties", mapEachPartyToPartyResponseDto(participatingParties));
+        relatedParties.put("completedParties", mapEachPartyToPartyResponseDto(completedParties));
+
+        return relatedParties;
     }
 }

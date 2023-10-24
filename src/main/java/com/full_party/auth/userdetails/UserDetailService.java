@@ -35,4 +35,6 @@ public class UserDetailService implements UserDetailsService {
         User foundUser = optionalUser.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
         return new UserDetail(foundUser, customAuthorityUtils);
     }
+
+
 }

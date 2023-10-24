@@ -12,6 +12,7 @@ import com.full_party.party.repository.UserPartyRepository;
 import com.full_party.party.repository.WaiterRepository;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
+import com.full_party.values.PartyState;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,15 +43,31 @@ public class PartyService {
         return partyRepository.save(party);
     }
 
-    // 내가 파티장인 파티와 파티원인 파티를 모두 취합해서 리턴
-    public List<Party> findMyParties(Long userId) {
+    public List<Party> findLeadingParty(Long userId) {
+        return partyRepository.findByUserId(userId);
+    }
 
-        List<Party> leadingParties = partyRepository.findByUserId(userId);
-        List<Party> participatingParties = userPartyRepository.findByUserId(userId).stream()
+    public List<Party> findParticipatingParty(Long userId) {
+        return userPartyRepository.findByUserId(userId).stream()
                 .map(userParty -> findParty(userParty.getParty().getId()))
                 .collect(Collectors.toList());
+    }
 
-        return Stream.of(leadingParties, participatingParties)
+    public List<Party> findProgressingMyParty(Long userId) {
+        return findMyParties(userId).stream()
+                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
+                .collect(Collectors.toList());
+    }
+
+    public List<Party> findCompletedMyParty(Long userId) {
+        return findMyParties(userId).stream()
+                .filter(party -> party.getPartyState() == PartyState.COMPLETED)
+                .collect(Collectors.toList());
+    }
+
+    // 내가 파티장인 파티와 파티원인 파티를 모두 취합해서 리턴
+    public List<Party> findMyParties(Long userId) {
+        return Stream.of(findLeadingParty(userId), findParticipatingParty(userId))
                 .flatMap(el -> el.stream())
                 .collect(Collectors.toList());
     }

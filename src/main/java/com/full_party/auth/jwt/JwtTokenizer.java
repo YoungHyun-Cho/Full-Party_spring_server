@@ -10,6 +10,7 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Calendar;
@@ -95,4 +96,12 @@ public class JwtTokenizer {
         Key key = Keys.hmacShaKeyFor(keyBytes);
         return key;
     }
+
+//    public Map<String, Object> verifyJws(HttpServletRequest request) {
+//        String jws = request.getHeader("Authorization").replace("Bearer ", "");
+//        String base64EncodedSecretKey = encodeBase64SecretKey(getSecretKey());
+//        Map<String, Object> claims = getClaims(jws, base64EncodedSecretKey).getBody();
+//
+//        return claims;
+//    }
 }

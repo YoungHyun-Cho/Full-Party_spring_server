@@ -3,6 +3,9 @@ package com.full_party.user.controller;
 import com.full_party.auth.dto.AuthDto;
 import com.full_party.auth.userdetails.UserDetail;
 import com.full_party.auth.userdetails.UserDetailService;
+import com.full_party.party.dto.PartyResponseDto;
+import com.full_party.party.mapper.PartyMapper;
+import com.full_party.party.service.PartyService;
 import com.full_party.user.dto.UserBasicResponseDto;
 import com.full_party.user.dto.UserPatchDto;
 import com.full_party.user.dto.UserPostDto;
@@ -22,6 +25,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/users")
@@ -29,11 +36,15 @@ public class UserController {
 
     private final static String USER_DEFAULT_URL = "/v1/users";
     private final UserService userService;
+    private final PartyService partyService;
     private final UserMapper userMapper;
+    private final PartyMapper partyMapper;
 
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, PartyService partyService, UserMapper userMapper, PartyMapper partyMapper) {
         this.userService = userService;
+        this.partyService = partyService;
         this.userMapper = userMapper;
+        this.partyMapper = partyMapper;
     }
 
     @PostMapping
@@ -63,9 +74,17 @@ public class UserController {
     @GetMapping("/{user-id}")
     public ResponseEntity getUser(@PathVariable("user-id") Long userId) {
 
-        User user = userService.findUser(userId);
+        UserBasicResponseDto userBasicResponseDto = userMapper.userToUserBasicResponseDto(userService.findUser(userId));
 
-        return new ResponseEntity(userMapper.userToUserBasicResponseDto(user), HttpStatus.OK);
+        Map<String, List<PartyResponseDto>> relatedParties = partyMapper.mapRelatedPartyMap(
+                partyService.findLeadingParty(userId),
+                partyService.findParticipatingParty(userId),
+                partyService.findCompletedMyParty(userId)
+        );
+
+        userBasicResponseDto.setRelatedParties(relatedParties);
+
+        return new ResponseEntity(userBasicResponseDto, HttpStatus.OK);
     }
 
     // 유저 상세 정보 조회
