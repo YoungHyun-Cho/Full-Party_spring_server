@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Component
 public class JwtVerificationFilter extends OncePerRequestFilter {
@@ -65,7 +66,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         return claims;
     }
 
-    private void setAuthenticationToContext(Map<String, Object> claims) {
+    private void setAuthenticationToContext(Map<String, Object> claims) throws NoSuchElementException {
 
         String username = (String) claims.get("username");
         List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities((List) claims.get("roles"));

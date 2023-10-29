@@ -1,6 +1,8 @@
 package com.full_party.auth.controller;
 
 import com.full_party.auth.dto.AuthDto;
+import com.full_party.exception.BusinessLogicException;
+import com.full_party.exception.ExceptionCode;
 import com.full_party.user.entity.User;
 import com.full_party.user.mapper.UserMapper;
 import com.full_party.user.service.UserService;
@@ -24,6 +26,15 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity signIn(@AuthenticationPrincipal UserDetails userDetails) {
+
+//        @RequestParam(value = "error", required = false) boolean isError,
+//        @RequestParam(value = "errMsg", required = false) String errMsg
+
+//        if (isError) throw new BusinessLogicException(errMsg);
+
+//        User user = userService.findUser(userDetails.getUsername());
+//
+//        return new ResponseEntity(userMapper.userToUserBasicResponseDto(user), HttpStatus.OK);
 
         User user = userService.findUser(userDetails.getUsername());
 
@@ -63,4 +74,25 @@ public class AuthController {
         * 굳!!
         * */
     }
+
+    @PostMapping("/verification")
+    public ResponseEntity verifyUser() {
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping("/error")
+    public ResponseEntity failedAuthentication(@RequestParam("errMsg") String errMsg) {
+
+        System.out.println("❌");
+
+        throw new BusinessLogicException(errMsg);
+    }
+
+    /*
+    * 문제 :
+    * - /verification으로 요청 -> 인증 실패 -> error, errMsg 파라미터 붙여서 redirect -> 다시 authenticationFilter 진입
+    * -
+    *
+    * */
 }

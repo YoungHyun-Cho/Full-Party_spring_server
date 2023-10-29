@@ -25,12 +25,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class SecurityConfiguration {
@@ -109,7 +114,11 @@ public class SecurityConfiguration {
             AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 
             JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer);
-            jwtAuthenticationFilter.setFilterProcessesUrl("/v1/auth/signin");
+//            jwtAuthenticationFilter.setFilterProcessesUrl("/v1/auth/**");
+
+            jwtAuthenticationFilter.setRequiresAuthenticationRequestMatcher(authenticationFilterPath());
+
+
 //            jwtAuthenticationFilter.setAuthenticationSuccessHandler(new UserAuthenticationSuccessHandler());
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(userAuthenticationSuccessHandler);
             jwtAuthenticationFilter.setAuthenticationFailureHandler(userAuthenticationFailureHandler);
@@ -128,4 +137,29 @@ public class SecurityConfiguration {
             * */
         }
     }
+
+    private RequestMatcher authenticationFilterPath() {
+        String[] allowedPaths = {"/v1/auth/signin", "/v1/auth/verification"};
+        List<RequestMatcher> processingMatchers = new ArrayList<>();
+
+        for (String path : allowedPaths) {
+            processingMatchers.add(new AntPathRequestMatcher(path));
+        }
+
+        return new OrRequestMatcher(processingMatchers);
+    }
 }
+
+/*
+* jwtAuthenticationFilter.setFilterProcessesUrl("/v1/auth/**");
+*
+* 마이페이지 정보 수정 시 재인증을 위한 API /auth/verification을 커버하기 위해 auth로 들어오는 API 요청에 대해 모두 authenticationFilter 적용
+* 흐름
+* - /auth/verification으로 요청 전송
+* - authenticationFilter 거치며 인증 진행
+* - 그 과정에서 SecurityContextHolder에 Authentication 저장됨.
+* - AuthController에서 Authentication Principal을 받아서 RequestBody의 Password와 AuthenticationPrincipal의 Password를 비교
+* - 결과에 따라 성공/실패 상태 코드를 응답으로 전송
+*
+*
+* */
