@@ -23,7 +23,9 @@ public interface PartyMapper {
 
     @Mapping(source = "tagList", target = "tags", qualifiedByName = "TagListToStringList")
     @Mapping(source = "comments", target = "comments", ignore = true)
+    @Mapping(source = "user", target = "userId", qualifiedByName = "userToUserId")
     PartyResponseDto partyToPartyResponseDto(Party party);
+
 //    @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToTempUser")
 //    @Mapping(source = "partyId", target = "party", qualifiedByName = "partyIdToTempParty")
 //    Waiter waiterDtoToWaiter(WaiterDto waiterDto);
@@ -82,4 +84,16 @@ public interface PartyMapper {
 
         return relatedParties;
     }
+
+    @Named("userToUserId")
+    default Long userToUserId(User user) {
+        return user.getId();
+    }
+
+//    @Named("userListToPartyMemberDtoList")
+//    default List<PartyMemberDto> userListToPartyMemberDtoList(List<User> userList) {
+//        return userList.stream()
+//                .map(user -> new PartyMemberDto(user))
+//                .collect(Collectors.toList());
+//    }
 }

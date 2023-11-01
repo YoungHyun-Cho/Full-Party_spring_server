@@ -1,5 +1,6 @@
 package com.full_party.party.controller;
 
+import com.full_party.auth.userdetails.UserDetail;
 import com.full_party.comment.dto.CommentReplyDto;
 import com.full_party.comment.dto.CommentResponseDto;
 import com.full_party.comment.mapper.CommentMapper;
@@ -10,6 +11,7 @@ import com.full_party.party.entity.Waiter;
 import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
 import com.full_party.tag.service.TagService;
+import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -130,12 +132,13 @@ public class PartyController {
 //        return new ResponseEntity(HttpStatus.CREATED);
 //    }
 
-    @PostMapping("/{party-id}/application/users/{user-id}")
+    // 참여 신청
+    @PostMapping("/{party-id}/application")
     public ResponseEntity applyParty(@PathVariable("party-id") Long partyId,
-                                     @PathVariable("user-id") Long userId,
+                                     @AuthenticationPrincipal UserDetails userDetails,
                                      @RequestBody WaiterDto waiterDto) {
 
-        partyService.createWaiter(userId, partyId, waiterDto.getMessage());
+        partyService.createWaiter(getUserId(userDetails), partyId, waiterDto.getMessage());
 
         return new ResponseEntity(HttpStatus.CREATED);
     }
@@ -156,9 +159,8 @@ public class PartyController {
     }
 
     // 파티 참여 승인 🟥 Header userId -> 파티장 본인 -> RequestBody의 userId가 승인 대상임.
-    @PostMapping("/{party-id}/participation/users/{user-id}")
+    @PostMapping("/{party-id}/participation")
     public ResponseEntity approveUser(@PathVariable("party-id") Long partyId,
-                                      @PathVariable("user-id") Long userId,
                                       @RequestBody PartyApproveDto partyApproveDto) {
 
 //        partyService.createUserParty(partyApproveDto.getUserId(), partyApproveDto.getPartyId());
@@ -169,21 +171,25 @@ public class PartyController {
     }
 
     // 참여 신청 취소 및 거절 🟥 Header userId -> 파티장 본인일 수도 있고, 파티원일 수도 있음.
-    @DeleteMapping("/{party-id}/application/users/{user-id}")
+    // 파티장이 거절 -> 알림에서 거절당했다고 표기 필요
+    @DeleteMapping("/{party-id}/application")
     public ResponseEntity cancelApplication(@PathVariable("party-id") Long partyId,
-                                            @PathVariable("user-id") Long userId,
-                                            @RequestParam(name = "action") String action) {
+                                            @AuthenticationPrincipal UserDetails userDetails,
+                                            @RequestParam(name = "action", required = false) String action) {
 
-        partyService.deleteWaiter(userId, partyId);
+        partyService.deleteWaiter(getUserId(userDetails), partyId);
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     // 파티 탈퇴 및 강퇴 🟥 Header userId -> 파티장 본인일 수도 있고, 파티원일 수도 있음.
-    @DeleteMapping("/{party-id}/participation/users/{user-id}")
+    @DeleteMapping("/{party-id}/participation/{user-id}")
     public ResponseEntity withdrawParty(@PathVariable("party-id") Long partyId,
                                         @PathVariable("user-id") Long userId,
-                                        @RequestParam(name = "action") String action) {
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+
+        // userDetails의 userId와 Path의 UserID가 일치하면 탈퇴
+        // 일치하지 않으면 강퇴
 
         partyService.deleteUserParty(userId, partyId);
 
@@ -208,5 +214,9 @@ public class PartyController {
     public ResponseEntity postReview(@PathVariable("party-id") Long partyId) {
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    private static Long getUserId(UserDetails userDetails) {
+        return ((UserDetail) userDetails).getId();
     }
 }

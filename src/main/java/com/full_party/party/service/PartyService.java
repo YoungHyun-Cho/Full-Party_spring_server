@@ -5,8 +5,10 @@ import com.full_party.exception.BusinessLogicException;
 import com.full_party.exception.ExceptionCode;
 import com.full_party.heart.service.HeartService;
 import com.full_party.party.entity.Party;
+import com.full_party.party.entity.PartyMember;
 import com.full_party.party.entity.UserParty;
 import com.full_party.party.entity.Waiter;
+import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.repository.PartyRepository;
 import com.full_party.party.repository.UserPartyRepository;
 import com.full_party.party.repository.WaiterRepository;
@@ -15,6 +17,7 @@ import com.full_party.user.service.UserService;
 import com.full_party.values.PartyState;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,14 +95,20 @@ public class PartyService {
         // getPartyMembers => partyId를 받아 파티장을 포함한 파티 전체 멤버를 리스트로 리턴
 
         partyList.stream()
-                .forEach(party -> party.setMemberList(findPartyMembers(party.getId())));
+                .forEach(party -> party.setMemberList(findPartyMembers(party)));
     }
 
-    private List<User> findPartyMembers(Long partyId) {
+    private List<PartyMember> findPartyMembers(Party party) {
 
-        User leader = findVerifiedParty(partyId).getUser();
-        List<User> members = userPartyRepository.findByPartyId(partyId).stream()
-                .map(userParty -> userService.findUser(userParty.getId()))
+        PartyMember leader = new PartyMember(party.getUser());
+        leader.setJoinDate(party.getCreatedAt());
+
+        List<PartyMember> members = userPartyRepository.findByPartyId(party.getId()).stream()
+                .map(userParty -> {
+                    PartyMember partyMember = new PartyMember(userService.findUser(userParty.getUser().getId()));
+                    partyMember.setJoinDate(findUserParty(partyMember.getId(), party.getId()).getCreatedAt());
+                    return partyMember;
+                })
                 .collect(Collectors.toList());
 
         members.add(0, leader);
@@ -110,8 +119,8 @@ public class PartyService {
     public Party findParty(Long partyId) {
 
         Party party = findVerifiedParty(partyId);
-        party.setMemberList(findPartyMembers(partyId));
-        party.setWaiterList(findWaiters(partyId));
+        party.setMemberList(findPartyMembers(party));
+        party.setWaiterList(findWaiters(party));
 
         return party;
     }
@@ -167,9 +176,9 @@ public class PartyService {
         return findVerifiedWaiter(userId, partyId);
     }
 
-    private List<User> findWaiters(Long partyId) {
+    private List<User> findWaiters(Party party) {
 
-        return waiterRepository.findByPartyId(partyId).stream()
+        return waiterRepository.findByPartyId(party.getId()).stream()
                 .map(waiter -> userService.findUser(waiter.getUser().getId()))
                 .collect(Collectors.toList());
     }
@@ -182,7 +191,9 @@ public class PartyService {
 
     public UserParty createUserParty(Long userId, Long partyId) {
 
+        System.out.println("🟥 userId:" + userId + "/ partyId:" + partyId);
         Waiter foundWaiter = findWaiter(userId, partyId);
+
 
         UserParty userParty = new UserParty(
                 foundWaiter.getUser(),
@@ -224,5 +235,7 @@ public class PartyService {
         userPartyRepository.delete(userParty);
     }
 
-
+//    public Boolean CheckIsLeader(User user, Party party) {
+//        // 유저가 파티장인지 파티원인지 확인 -> 참여신청 거절 및 강퇴 등에 사용 예정
+//    }
 }
