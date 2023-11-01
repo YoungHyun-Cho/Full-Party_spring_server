@@ -11,7 +11,6 @@ import com.full_party.party.entity.Waiter;
 import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
 import com.full_party.tag.service.TagService;
-import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,15 +47,15 @@ public class PartyController {
     // # 기본 CRUD
     // 파티장 : 퀘스트 생성
     @PostMapping
-    public ResponseEntity postParty(@RequestBody PartyPostDto partyPostDto,
+    public ResponseEntity postParty(@RequestBody PartyRequestDto partyRequestDto,
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
         Party party = partyService.createParty(
-                partyMapper.partyPostDtoToParty(partyPostDto),
+                partyMapper.partyRequestDtoToParty(partyRequestDto),
                 userService.findUser(userDetails.getUsername())
         );
 
-        tagService.createTagList(party, partyPostDto.getTags());
+        tagService.createTagList(party, partyRequestDto.getTags());
 
         URI uri =
                 UriComponentsBuilder
@@ -99,38 +98,16 @@ public class PartyController {
 
         return new ResponseEntity(partyResponseDto, HttpStatus.OK);
     }
-//
-//    // 파티장 : 파티 정보 수정
-//    @PatchMapping("/{quest-id}")
-//    public ResponseEntity patchQuestInfo(@PathVariable("quest-id") Long questId,
-//                                         @RequestBody QuestDto questDto) {
-//
-//        questDto.setQuestId(questId);
-//        Quest updatedQuest = questService.updateQuest(questMapper.questDtoToQuest(questDto));
-//
-//        return new ResponseEntity(questMapper.questToQuestResponseDto(updatedQuest), HttpStatus.OK);
-//    }
-//
-//    // 파티장 : 파티 삭제
-//    @DeleteMapping("/{quest-id}")
-//    public ResponseEntity deleteQuest(@PathVariable("quest-id") Long questId) {
-//
-//        questService.deleteQuest(questId);
-//
-//        return new ResponseEntity(HttpStatus.NO_CONTENT);
-//    }
+
+    // 파티장 : 파티 삭제
+    @DeleteMapping("/{party-id}")
+    public ResponseEntity deleteParty(@PathVariable("party-id") Long partyId) {
+
+        partyService.deleteParty(partyId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 
     // 🟥 여기까지 기존 quest controller
-
-    // 참여 신청
-//    @PostMapping("/{party-id}/application")
-//    public ResponseEntity applyParty(@PathVariable("party-id") Long partyId,
-//                                     @RequestBody WaiterDto waiterDto) {
-//
-//        partyService.createWaiter(partyMapper.waiterDtoToWaiter(waiterDto));
-//
-//        return new ResponseEntity(HttpStatus.CREATED);
-//    }
 
     // 참여 신청
     @PostMapping("/{party-id}/application")
@@ -196,22 +173,41 @@ public class PartyController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    // 파티 상태 변경(모집 완료 / 파티 완료 / 재모집) & 멤버 리밋 변경
-    // 파티장의 파티 정보 수정도 포함해야 함.
+    // 파티 정보 수정
     @PatchMapping("/{party-id}")
     public ResponseEntity patchParty(@PathVariable("party-id") Long partyId,
-                                     @RequestBody PartyPatchDto partyPatchDto) {
+                                     @RequestBody PartyRequestDto partyRequestDto) {
 
-        partyPatchDto.setId(partyId);
+        partyRequestDto.setId(partyId);
 
-        Party party = partyService.updateParty(partyMapper.partyPatchDtoToParty(partyPatchDto));
+        Party party = partyService.updateParty(partyMapper.partyRequestDtoToParty(partyRequestDto));
 
         return new ResponseEntity(partyMapper.partyToPartyResponseDto(party), HttpStatus.OK);
     }
 
+    @PatchMapping("/{party-id}/states")
+    public ResponseEntity patchPartyState(@PathVariable("party-id") Long partyId,
+                                          @RequestBody PartyRequestDto partyRequestDto) {
+
+        Party party = partyService.updatePartyState(partyId, partyRequestDto.getPartyState());
+
+        return new ResponseEntity(partyMapper.partyToPartyResponseDto(party), HttpStatus.OK);
+
+    }
+
     // 파티원 리뷰 -> 보류. 추후 구체적 기능 파악 후 구현
     @PostMapping("/{party-id}/review")
-    public ResponseEntity postReview(@PathVariable("party-id") Long partyId) {
+    public ResponseEntity postReview(@PathVariable("party-id") Long partyId,
+                                     @RequestBody PartyReviewDto partyReviewDto) {
+
+
+        System.out.println(partyReviewDto.getResults().get(0).getUserId());
+
+        // userParty에 isReviewd true 체크
+
+        // 🟥 해야 할 것
+        // DTO로 리뷰 Result왜 안들어오는지 확인해야 함.
+        // 퀘스트 완료 시에도 왜 계속 퀘스트 완료 버튼 남아있는지 확인 필요
 
         return new ResponseEntity(HttpStatus.OK);
     }

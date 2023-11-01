@@ -25,6 +25,7 @@ public class PartyResponseDto {
     private Boolean isOnline;
     private String region;
     private String location;
+    private String privateLink;
     private Coordinates coordinates;
     private Boolean isHeart;
     private PartyState partyState;

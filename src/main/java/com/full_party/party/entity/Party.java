@@ -109,4 +109,29 @@ public class Party extends Auditable {
     public Party(Long id) {
         this.id = id;
     }
+
+    public Party(Party previousParty, Party modifiedParty) {
+        this.id = previousParty.getId();
+        this.name = modifiedParty.getName();
+        this.image = modifiedParty.getImage();
+        this.content = modifiedParty.getContent();
+        this.startDate = modifiedParty.startDate;
+        this.endDate = modifiedParty.endDate;
+        this.isOnline = modifiedParty.isOnline;
+        this.privateLink = modifiedParty.privateLink;
+        this.region = modifiedParty.getRegion();
+        this.location = modifiedParty.getLocation();
+        this.memberLimit = modifiedParty.memberLimit;
+        this.coordinates = modifiedParty.getCoordinates();
+        this.partyState = modifiedParty.partyState;
+        this.user = previousParty.getUser();
+        this.tagList = modifiedParty.tagList;
+        this.userParties = previousParty.userParties;
+        this.comments = previousParty.getComments();
+        this.hearts = previousParty.getHearts();
+        this.waiters = previousParty.getWaiters();
+        this.isHeart = previousParty.isHeart;
+        this.memberList = previousParty.memberList;
+        this.waiterList = previousParty.waiterList;
+    }
 }

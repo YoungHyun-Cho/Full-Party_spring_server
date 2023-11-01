@@ -14,7 +14,8 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PartyPostDto {
+public class PartyRequestDto {
+    private Long id;
     private Long userId;
     private String name;
     private String image;
@@ -26,6 +27,7 @@ public class PartyPostDto {
     private String region;
     private String location;
     private Integer memberLimit;
+    private PartyState partyState;
     private Coordinates coordinates;
     private ArrayList<String> tags;
 }

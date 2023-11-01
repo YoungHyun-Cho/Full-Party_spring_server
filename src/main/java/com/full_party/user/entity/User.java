@@ -92,19 +92,19 @@ public class User extends Auditable {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 
-    public User(User beforeUser, User afterUser) {
-        this.id = beforeUser.id;
-        this.email = beforeUser.email;
-        this.exp = beforeUser.exp;
-        this.level = beforeUser.level;
-        this.signUpType = beforeUser.signUpType;
-        this.userName = afterUser.userName;
-        this.password = afterUser.password;
-        this.profileImage = afterUser.profileImage;
-        this.birth = afterUser.birth;
-        this.gender = afterUser.gender;
-        this.mobile = afterUser.mobile;
-        this.address = afterUser.address;
+    public User(User previousUser, User modifiedUser) {
+        this.id = previousUser.id;
+        this.email = previousUser.email;
+        this.exp = previousUser.exp;
+        this.level = previousUser.level;
+        this.signUpType = previousUser.signUpType;
+        this.userName = modifiedUser.userName;
+        this.password = modifiedUser.password;
+        this.profileImage = modifiedUser.profileImage;
+        this.birth = modifiedUser.birth;
+        this.gender = modifiedUser.gender;
+        this.mobile = modifiedUser.mobile;
+        this.address = modifiedUser.address;
     }
 
     public User(User newUser) {

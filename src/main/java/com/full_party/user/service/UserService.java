@@ -74,4 +74,12 @@ public class UserService {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) throw new BusinessLogicException(ExceptionCode.USER_EXISTS);
     }
+
+    public User updateExp(Long userId, Integer exp) {
+        User foundUser = findUser(userId);
+
+        foundUser.setExp(foundUser.getExp() + exp);
+
+        return foundUser;
+    }
 }

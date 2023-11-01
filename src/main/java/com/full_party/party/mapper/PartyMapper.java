@@ -17,16 +17,15 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface PartyMapper {
 
-    Party partyPostDtoToParty(PartyPostDto partyPostDto);
-
-    Party partyPatchDtoToParty(PartyPatchDto partyPatchDto);
+    @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToUser")
+    Party partyRequestDtoToParty(PartyRequestDto partyRequestDto);
 
     @Mapping(source = "tagList", target = "tags", qualifiedByName = "TagListToStringList")
     @Mapping(source = "comments", target = "comments", ignore = true)
     @Mapping(source = "user", target = "userId", qualifiedByName = "userToUserId")
     PartyResponseDto partyToPartyResponseDto(Party party);
 
-//    @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToTempUser")
+    //    @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToTempUser")
 //    @Mapping(source = "partyId", target = "party", qualifiedByName = "partyIdToTempParty")
 //    Waiter waiterDtoToWaiter(WaiterDto waiterDto);
 //
@@ -88,6 +87,11 @@ public interface PartyMapper {
     @Named("userToUserId")
     default Long userToUserId(User user) {
         return user.getId();
+    }
+
+    @Named("userIdToUser")
+    default User userIdToUser(Long userId) {
+        return new User(userId);
     }
 
 //    @Named("userListToPartyMemberDtoList")

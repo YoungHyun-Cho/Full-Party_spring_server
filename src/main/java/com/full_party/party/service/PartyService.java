@@ -128,8 +128,19 @@ public class PartyService {
     public Party updateParty(Party party) {
         Party foundParty = findVerifiedParty(party.getId());
 
-        foundParty.setPartyState(party.getPartyState());
-        foundParty.setMemberLimit(party.getMemberLimit());
+//        foundParty.setPartyState(party.getPartyState());
+//        foundParty.setMemberLimit(party.getMemberLimit());
+
+        Party updatedParty = new Party(foundParty, party);
+
+        return partyRepository.save(updatedParty);
+    }
+
+    public Party updatePartyState(Long partyId, PartyState partyState) {
+
+        Party foundParty = findParty(partyId);
+
+        foundParty.setPartyState(partyState);
 
         return partyRepository.save(foundParty);
     }
@@ -233,6 +244,15 @@ public class PartyService {
 
     public void deleteUserParty(UserParty userParty) {
         userPartyRepository.delete(userParty);
+    }
+
+    public void deleteParty(Long partyId) {
+        Party foundParty = findParty(partyId);
+        deleteParty(foundParty);
+    }
+
+    public void deleteParty(Party party) {
+        partyRepository.delete(party);
     }
 
 //    public Boolean CheckIsLeader(User user, Party party) {
