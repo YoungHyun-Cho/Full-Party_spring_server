@@ -77,8 +77,8 @@ public class UserController {
         UserBasicResponseDto userBasicResponseDto = userMapper.userToUserBasicResponseDto(userService.findUser(userId));
 
         Map<String, List<PartyResponseDto>> relatedParties = partyMapper.mapRelatedPartyMap(
-                partyService.findLeadingParty(userId),
-                partyService.findParticipatingParty(userId),
+                partyService.findProgressingLeadingParty(userId),
+                partyService.findProgressingParticipatingParty(userId),
                 partyService.findCompletedMyParty(userId)
         );
 
@@ -97,11 +97,14 @@ public class UserController {
     }
 
     @PatchMapping("/{user-id}")
-    public ResponseEntity patchUser(@PathVariable("user-id") Long userId, @RequestBody UserPatchDto userPatchDto) {
+    public ResponseEntity patchUser(@PathVariable("user-id") Long userId,
+                                    @RequestBody UserPatchDto userPatchDto) {
+
+        userPatchDto.setId(userId);
 
         User user = userService.updateUser(userMapper.userPatchDtoToUser(userPatchDto));
 
-        return new ResponseEntity(userPatchDto, HttpStatus.OK);
+        return new ResponseEntity(userMapper.userToUserDetailResponseDto(user), HttpStatus.OK);
     }
 
     @DeleteMapping("/{user-id}")

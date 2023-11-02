@@ -80,6 +80,6 @@ public class UserService {
 
         foundUser.setExp(foundUser.getExp() + exp);
 
-        return foundUser;
+        return userRepository.save(foundUser);
     }
 }

@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class UserPatchDto {
 
-    private Long userId;
+    private Long id;
     private String userName;
     private String password;
     private String profileImage;

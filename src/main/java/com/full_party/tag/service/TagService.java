@@ -45,4 +45,8 @@ public class TagService {
 
         return (ArrayList<Tag>) tags;
     }
-}
+
+    public List<Tag> findTagsByTagValue(String tagValue) {
+        return tagRepository.searchTagsByTagValue(tagValue);
+    }
+ }

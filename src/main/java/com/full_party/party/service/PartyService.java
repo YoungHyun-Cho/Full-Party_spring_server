@@ -8,16 +8,15 @@ import com.full_party.party.entity.Party;
 import com.full_party.party.entity.PartyMember;
 import com.full_party.party.entity.UserParty;
 import com.full_party.party.entity.Waiter;
-import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.repository.PartyRepository;
 import com.full_party.party.repository.UserPartyRepository;
 import com.full_party.party.repository.WaiterRepository;
+import com.full_party.tag.entity.Tag;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.values.PartyState;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,12 +46,27 @@ public class PartyService {
     }
 
     public List<Party> findLeadingParty(Long userId) {
+//        return partyRepository.findByUserId(userId).stream()
+//                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
+//                .collect(Collectors.toList());
         return partyRepository.findByUserId(userId);
+    }
+
+    public List<Party> findProgressingLeadingParty(Long userId) {
+        return findLeadingParty(userId).stream()
+                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
+                .collect(Collectors.toList());
     }
 
     public List<Party> findParticipatingParty(Long userId) {
         return userPartyRepository.findByUserId(userId).stream()
                 .map(userParty -> findParty(userParty.getParty().getId()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Party> findProgressingParticipatingParty(Long userId) {
+        return findParticipatingParty(userId).stream()
+                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
                 .collect(Collectors.toList());
     }
 
@@ -118,11 +132,60 @@ public class PartyService {
 
     public Party findParty(Long partyId) {
 
-        Party party = findVerifiedParty(partyId);
+        Party foundParty = findVerifiedParty(partyId);
+
+        return setTransientValues(foundParty);
+//        foundParty.setMemberList(findPartyMembers(foundParty));
+//        foundParty.setWaiterList(findWaiters(foundParty));
+//        foundParty.setHeartCount(heartService.findHearts(foundParty).size());
+//
+//        return foundParty;
+    }
+
+    private Party setTransientValues(Party party) {
+
         party.setMemberList(findPartyMembers(party));
         party.setWaiterList(findWaiters(party));
+        party.setHeartCount(heartService.findHearts(party).size());
 
         return party;
+    }
+
+    private Party setTransientValues(Party party, Long userId) {
+
+        setTransientValues(party);
+
+        if (heartService.findHeart(userId, party.getId()) != null) party.setIsHeart(true);
+        else party.setIsHeart(false);
+
+        return party;
+    }
+
+    public Party findParty(Long userId, Long partyId) {
+
+        Party foundParty = findParty(partyId);
+
+        return setTransientValues(foundParty, userId);
+
+//        Heart heart = heartService.findHeart(userId, partyId);
+//
+//        if (heart != null) foundParty.setIsHeart(true);
+//        else foundParty.setIsHeart(false);
+//
+//        return foundParty;
+    }
+
+    public List<Party> findPartiesByTag(String tagValue, Long userId, String region) {
+        return partyRepository.searchPartiesByTagValue(tagValue, region).stream()
+                .map(party -> setTransientValues(party, userId))
+                .collect(Collectors.toList());
+    }
+
+    public List<Party> findPartiesByKeyword(String keyword, Long userId, String region) {
+
+        return partyRepository.searchPartiesByKeyword(keyword, region).stream()
+                .map(party -> setTransientValues(party, userId))
+                .collect(Collectors.toList());
     }
 
     public Party updateParty(Party party) {
@@ -253,6 +316,22 @@ public class PartyService {
 
     public void deleteParty(Party party) {
         partyRepository.delete(party);
+    }
+
+    public void checkIsReviewed(User user, Party party, Integer resultsLength) {
+
+        // 파티장은 userParty X -> 파티원만 체크
+        if (party.getUser().getId() != user.getId()) {
+
+            List<UserParty> userParties = userPartyRepository.findByPartyId(party.getId());
+
+            // 자신을 제외한 파티원을 모두 리뷰했는지 체크
+            if (userPartyRepository.findByPartyId(party.getId()).size() - 1 == resultsLength) {
+                UserParty foundUserParty = findUserParty(user.getId(), party.getId());
+                foundUserParty.setIsReviewed(true);
+                userPartyRepository.save(foundUserParty);
+            }
+        }
     }
 
 //    public Boolean CheckIsLeader(User user, Party party) {

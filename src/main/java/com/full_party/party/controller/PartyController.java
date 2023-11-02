@@ -11,7 +11,9 @@ import com.full_party.party.entity.Waiter;
 import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
 import com.full_party.tag.service.TagService;
+import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
+import com.full_party.values.PartyState;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -81,9 +83,11 @@ public class PartyController {
 
     // 공통 : 파티 정보 조회
     @GetMapping("/{party-id}")
-    public ResponseEntity getPartyInfo(@PathVariable("party-id") Long partyId) {
+    public ResponseEntity getPartyInfo(@PathVariable("party-id") Long partyId,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
 
-        Party party = partyService.findParty(partyId);
+        User user = userService.findUser(userDetails.getUsername());
+        Party party = partyService.findParty(user.getId(), partyId);
         PartyResponseDto partyResponseDto = partyMapper.partyToPartyResponseDto(party);
 
         commentService.findComments(partyId).stream()
@@ -195,19 +199,22 @@ public class PartyController {
 
     }
 
-    // 파티원 리뷰 -> 보류. 추후 구체적 기능 파악 후 구현
+    // 파티원 리뷰
     @PostMapping("/{party-id}/review")
     public ResponseEntity postReview(@PathVariable("party-id") Long partyId,
+                                     @AuthenticationPrincipal UserDetails userDetails,
                                      @RequestBody PartyReviewDto partyReviewDto) {
 
+        // 파티장이면 userParty에 isReviewed 체크 안해도 됨. 파티원이면 해야 함.
 
-        System.out.println(partyReviewDto.getResults().get(0).getUserId());
+        partyReviewDto.getResults().stream()
+                .forEach(result -> userService.updateExp(result.getUserId(), result.getExp()));
 
-        // userParty에 isReviewd true 체크
-
-        // 🟥 해야 할 것
-        // DTO로 리뷰 Result왜 안들어오는지 확인해야 함.
-        // 퀘스트 완료 시에도 왜 계속 퀘스트 완료 버튼 남아있는지 확인 필요
+        partyService.checkIsReviewed(
+                userService.findUser(userDetails.getUsername()),
+                partyService.findParty(partyId),
+                partyReviewDto.getResults().size()
+        );
 
         return new ResponseEntity(HttpStatus.OK);
     }

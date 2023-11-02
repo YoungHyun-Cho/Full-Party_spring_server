@@ -14,11 +14,9 @@ import java.util.Optional;
 public class HeartService {
 
     private final HeartRepository heartRepository;
-    private final UserService userService;
 
-    public HeartService(HeartRepository heartRepository, UserService userService) {
+    public HeartService(HeartRepository heartRepository) {
         this.heartRepository = heartRepository;
-        this.userService = userService;
     }
 
     public Heart createHeart(User user, Party party) {
@@ -26,13 +24,25 @@ public class HeartService {
         return heartRepository.save(heart);
     }
 
-    public List<Heart> findHearts(Long userId) {
-        return heartRepository.findByUserId(userId);
+    public Heart findHeart(Long userId, Long partyId) {
+
+        Optional<Heart> optionalHeart = heartRepository.findByUserIdAndPartyId(userId, partyId);
+
+        if (optionalHeart.isPresent()) return optionalHeart.get();
+        else return null;
+    }
+
+    public List<Heart> findHearts(User user) {
+        return heartRepository.findByUserId(user.getId());
+    }
+
+    public List<Heart> findHearts(Party party) {
+        return heartRepository.findByPartyId(party.getId());
     }
 
     public void deleteHeart(User user, Party party) {
-        Heart heart = new Heart(user, party);
-        heartRepository.delete(heart);
+
+        heartRepository.delete(findHeart(user.getId(), party.getId()));
     }
 
     public Boolean checkIsHeart(Long userId, Long partyId) {

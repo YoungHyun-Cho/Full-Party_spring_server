@@ -1,10 +1,12 @@
 package com.full_party.auth.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.full_party.auth.jwt.JwtTokenizer;
 import com.full_party.auth.userdetails.UserDetail;
 import com.full_party.auth.userdetails.UserDetailService;
 import com.full_party.auth.utils.CustomAuthorityUtils;
 import com.full_party.config.SecurityConfiguration;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -54,9 +56,27 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
         Map<String, Object> claims = verifyJws(request);
         setAuthenticationToContext(claims);
+//        try {
+//        }
+//        catch (ExpiredJwtException e) {
+//            handleExpiredJwtException(response, e);
+//        }
 
         filterChain.doFilter(request, response);
     }
+
+//    private static void handleExpiredJwtException(HttpServletResponse response, ExpiredJwtException e) {
+//        response.setStatus(400);
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
+//        try {
+//            String json = new ObjectMapper().writeValueAsString(e.getMessage());
+//            response.getWriter().write(json);
+//        }
+//        catch (Exception error) {
+//            System.out.println(error.getMessage());
+//        }
+//    }
 
     private Map<String, Object> verifyJws(HttpServletRequest request) {
         String jws = request.getHeader("Authorization").replace("Bearer ", "");

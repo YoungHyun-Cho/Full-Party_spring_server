@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface HeartRepository extends JpaRepository<Heart, Long> {
 
     List<Heart> findByUserId(Long userId);
+    List<Heart> findByPartyId(Long partyId);
     Optional<Heart> findByUserIdAndPartyId(Long userId, Long partyId);
 }

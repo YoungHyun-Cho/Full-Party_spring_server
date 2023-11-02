@@ -28,6 +28,7 @@ public class PartyResponseDto {
     private String privateLink;
     private Coordinates coordinates;
     private Boolean isHeart;
+    private Integer heartCount;
     private PartyState partyState;
     private List<CommentReplyDto> comments = new ArrayList<>();
     private List<String> tags;
