@@ -36,7 +36,7 @@ public class User extends Auditable {
     @OneToMany(mappedBy = "user")
     private List<Party> parties = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<UserParty> userParties = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")

@@ -9,6 +9,19 @@ spring:
     hibernate:
       ddl-auto: update
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: fullpartyspring@gmail.com
+    password: vqrb ahdv kort osgy
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+
 jwt:
   key: ${JWT_SECRET_KEY}
   access-token-expiration-minutes: 30
