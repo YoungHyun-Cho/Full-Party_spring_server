@@ -7,6 +7,7 @@ import com.full_party.auth.userdetails.UserDetailService;
 import com.full_party.auth.utils.CustomAuthorityUtils;
 import com.full_party.config.SecurityConfiguration;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -48,37 +49,40 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
         String authorization = request.getHeader("Authorization");
 
-        return authorization == null || !authorization.startsWith("Bearer");
+//        System.out.println("🔴 should not filter : " + authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer undefined"));
+
+        return authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer undefined");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println("🟥");
+        try {
+            Map<String, Object> claims = verifyJws(request);
+            setAuthenticationToContext(claims);
 
-        Map<String, Object> claims = verifyJws(request);
-        setAuthenticationToContext(claims);
-//        try {
-//        }
-//        catch (ExpiredJwtException e) {
-//            handleExpiredJwtException(response, e);
-//        }
+            filterChain.doFilter(request, response);
+        }
+        catch (MalformedJwtException e) {
 
-        filterChain.doFilter(request, response);
+            System.out.println("❌ MalformedJwtException");
+            handleExpiredJwtException(response, e);
+        }
+
     }
 
-//    private static void handleExpiredJwtException(HttpServletResponse response, ExpiredJwtException e) {
-//        response.setStatus(400);
-//        response.setContentType("application/json");
-//        response.setCharacterEncoding("UTF-8");
-//        try {
-//            String json = new ObjectMapper().writeValueAsString(e.getMessage());
-//            response.getWriter().write(json);
-//        }
-//        catch (Exception error) {
-//            System.out.println(error.getMessage());
-//        }
-//    }
+    private static void handleExpiredJwtException(HttpServletResponse response, MalformedJwtException e) {
+        response.setStatus(401);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            String json = new ObjectMapper().writeValueAsString(e.getMessage());
+            response.getWriter().write(json);
+        }
+        catch (Exception error) {
+            System.out.println(error.getMessage());
+        }
+    }
 
     private Map<String, Object> verifyJws(HttpServletRequest request) {
         String jws = request.getHeader("Authorization").replace("Bearer ", "");
@@ -91,11 +95,11 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     private void setAuthenticationToContext(Map<String, Object> claims) throws NoSuchElementException {
 
         String username = (String) claims.get("username");
-        List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities((List) claims.get("roles"));
+//        List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities((List) claims.get("roles"));
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 (UserDetail) userDetailService.loadUserByUsername(username), // https://devjem.tistory.com/70
-                null,
-                authorities
+                null
+//                authorities
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

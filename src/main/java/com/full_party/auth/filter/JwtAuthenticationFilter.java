@@ -24,6 +24,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +44,26 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+
+        System.out.println("🟥 AttempAuthentication");
+
+//        try {
+//            if (request.getHeader("Authorization").equals("Bearer undefined")) {
+//                String refreshToken = request.getHeader("Refresh");
+//                System.out.println("🟥 " + refreshToken);
+//                String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
+//                Map<String, Object> claims = jwtTokenizer.getClaims(refreshToken, base64EncodedSecretKey).getBody();
+////                System.out.println("claims.get(\"username\") : " + claims.get("username"));
+////                System.out.println("claims.get(\"userId\") : " + claims.get("userId"));
+//                claims.keySet().stream().forEach(el -> System.out.println(el));
+//                System.out.println(claims.get("sub"));
+//                System.out.println(claims.get("iat"));
+//                System.out.println(claims.get("exp"));
+//
+//
+//            }
+//        }
+//        catch (NullPointerException e) {}
 
         ObjectMapper objectMapper = new ObjectMapper();
         AuthDto authDto = objectMapper.readValue(request.getInputStream(), AuthDto.class);
@@ -63,8 +86,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 //        response.addCookie(createCookie("token", accessToken, 60 * 60));
 //        response.addCookie(createCookie("refresh", refreshToken, 60 * 60 * 3));
 
-        response.addHeader("Set-Cookie", createCookie("token", accessToken, 60 * 60).toString());
-        response.addHeader("Set-Cookie", createCookie("refresh", refreshToken, 60 * 60 * 3).toString());
+        response.addHeader("Set-Cookie", createCookie("token", accessToken, 2).toString());
+        response.addHeader("Set-Cookie", createCookie("refresh", refreshToken, 60).toString());
 
         this.getSuccessHandler().onAuthenticationSuccess(request, response, authResult);
 
@@ -86,7 +109,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .domain("localhost")
                 .path("/")
                 .sameSite("None")
-                .maxAge(maxAge)
+                .maxAge(Duration.ofMinutes(maxAge).getSeconds())
                 .secure(true)
                 .build();
 
@@ -100,10 +123,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
         claims.put("username", user.getEmail());
-        claims.put("roles", user.getRoles());
 
         String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getTokenExpiration(jwtTokenizer.getAccessTokenExpirationMinutes());
+        Date expiration = jwtTokenizer.getTokenExpiration();
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
 
         String accessToken = jwtTokenizer.generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
@@ -114,7 +136,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private String delegateRefreshToken(User user) {
 
         String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getTokenExpiration(jwtTokenizer.getAccessTokenExpirationMinutes());
+        Date expiration = jwtTokenizer.getTokenExpiration();
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
 
         String refreshToken = jwtTokenizer.generateRefreshToken(subject, expiration, base64EncodedSecretKey);

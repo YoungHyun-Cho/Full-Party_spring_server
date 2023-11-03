@@ -14,7 +14,6 @@ public class MailService {
     private final JavaMailSender javaMailSender;
     private static final String SENDER_EMAIL = "fullpartyspring@gmail.com";
     private static Integer number;
-    private static String content;
 
     public MailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;

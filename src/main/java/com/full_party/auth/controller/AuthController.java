@@ -1,25 +1,32 @@
 package com.full_party.auth.controller;
 
 import com.full_party.auth.dto.AuthDto;
+import com.full_party.auth.service.AuthService;
 import com.full_party.exception.BusinessLogicException;
 import com.full_party.exception.ExceptionCode;
 import com.full_party.user.entity.User;
 import com.full_party.user.mapper.UserMapper;
 import com.full_party.user.service.UserService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+
 @RestController
 @RequestMapping("/v1/auth")
 public class AuthController {
 
+    private final AuthService authService;
     private final UserService userService;
     private final UserMapper userMapper;
 
-    public AuthController(UserService userService, UserMapper userMapper) {
+    public AuthController(AuthService authService, UserService userService, UserMapper userMapper) {
+        this.authService = authService;
         this.userService = userService;
         this.userMapper = userMapper;
     }
@@ -75,19 +82,41 @@ public class AuthController {
         * */
     }
 
-    @PostMapping("/verification")
-    public ResponseEntity verifyUser() {
+    @GetMapping("/refresh")
+    public ResponseEntity refresh(@RequestHeader("Refresh") String refreshToken) {
 
-        return new ResponseEntity(HttpStatus.OK);
+        /*
+        * 액세스 토큰 재발급해주고 200 응답해야 함.
+        *
+        * */
+
+        System.out.println("🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥 AuthController refresh");
+
+        // 액세스토큰 재발급
+        String accessToken = authService.reIssueAccessToken(refreshToken);
+
+        // 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        ResponseCookie cookie = authService.createCookie("token", accessToken, 30);
+        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return new ResponseEntity(headers, HttpStatus.OK);
     }
 
-    @GetMapping("/error")
-    public ResponseEntity failedAuthentication(@RequestParam("errMsg") String errMsg) {
-
-        System.out.println("❌");
-
-        throw new BusinessLogicException(errMsg);
-    }
+    // 마이페이지 재인증
+//    @PostMapping("/verification")
+//    public ResponseEntity verifyUser() {
+//
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/error")
+//    public ResponseEntity failedAuthentication(@RequestParam("errMsg") String errMsg) {
+//
+//        System.out.println("❌");
+//
+//        throw new BusinessLogicException(errMsg);
+//    }
 
     /*
     * 문제 :

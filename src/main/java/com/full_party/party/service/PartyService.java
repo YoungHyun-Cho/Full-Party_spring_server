@@ -42,6 +42,7 @@ public class PartyService {
 
     public Party createParty(Party party, User user) {
         party.setUser(user);
+        party.setPartyState(PartyState.RECRUITING);
         return partyRepository.save(party);
     }
 
