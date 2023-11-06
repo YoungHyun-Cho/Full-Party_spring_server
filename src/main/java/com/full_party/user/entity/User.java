@@ -86,7 +86,7 @@ public class User extends Auditable {
     private Integer level;
 
     @Enumerated(EnumType.STRING)
-    @Column
+    @Column(nullable = false)
     private SignUpType signUpType;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -109,7 +109,7 @@ public class User extends Auditable {
 
     public User(User newUser) {
         this.email = newUser.email;
-        this.signUpType = SignUpType.NORMAL;
+        this.signUpType = newUser.getSignUpType() == null ? SignUpType.NORMAL : newUser.getSignUpType();
         this.userName = newUser.userName;
         this.password = newUser.password;
         this.profileImage = newUser.profileImage;
@@ -124,5 +124,19 @@ public class User extends Auditable {
 
     public User(Long id) {
         this.id = id;
+    }
+
+    public User(String email, String userName, String profileImage, SignUpType signUpType) {
+        this.email = email;
+        this.userName = userName;
+        this.profileImage = profileImage;
+        this.password = signUpType.getType() + userName;
+        this.address = signUpType.getType();
+        this.birth = new Date();
+        this.exp = 0;
+        this.level = 1;
+        this.gender = Gender.NOT_SELECTED;
+        this.mobile = signUpType.getType();
+        this.signUpType = signUpType;
     }
 }

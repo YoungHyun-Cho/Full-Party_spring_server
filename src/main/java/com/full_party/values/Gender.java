@@ -8,7 +8,9 @@ import lombok.Getter;
 
 public enum Gender {
     MALE("남성"),
-    FEMALE("여성");
+    FEMALE("여성"),
+
+    NOT_SELECTED("선택 안함");
 
     @Getter
     private String korGender;

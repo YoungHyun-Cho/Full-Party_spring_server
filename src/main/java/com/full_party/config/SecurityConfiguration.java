@@ -2,6 +2,7 @@ package com.full_party.config;
 
 import com.full_party.auth.filter.JwtAuthenticationFilter;
 import com.full_party.auth.filter.JwtVerificationFilter;
+import com.full_party.auth.handler.OAuth2UserSuccessHandler;
 import com.full_party.auth.handler.UserAuthenticationFailureHandler;
 import com.full_party.auth.handler.UserAuthenticationSuccessHandler;
 import com.full_party.auth.jwt.JwtTokenizer;
@@ -25,6 +26,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -45,14 +47,26 @@ public class SecurityConfiguration {
     private final UserAuthenticationSuccessHandler userAuthenticationSuccessHandler;
     private final UserAuthenticationFailureHandler userAuthenticationFailureHandler;
     private final CustomAuthorityUtils customAuthorityUtils;
+    private final UserService userService;
     private final UserDetailService userDetailService;
     public static final String URL = "https://localhost:8080";
 
-    public SecurityConfiguration(JwtTokenizer jwtTokenizer, UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserDetailService userDetailService) {
+//    public SecurityConfiguration(JwtTokenizer jwtTokenizer, UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserDetailService userDetailService, UserService userService) {
+//        this.jwtTokenizer = jwtTokenizer;
+//        this.userAuthenticationSuccessHandler = userAuthenticationSuccessHandler;
+//        this.userAuthenticationFailureHandler = userAuthenticationFailureHandler;
+//        this.customAuthorityUtils = customAuthorityUtils;
+//        this.userDetailService = userDetailService;
+//        this.userService = userService;
+//    }
+
+
+    public SecurityConfiguration(JwtTokenizer jwtTokenizer, UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserService userService, @Lazy UserDetailService userDetailService) {
         this.jwtTokenizer = jwtTokenizer;
         this.userAuthenticationSuccessHandler = userAuthenticationSuccessHandler;
         this.userAuthenticationFailureHandler = userAuthenticationFailureHandler;
         this.customAuthorityUtils = customAuthorityUtils;
+        this.userService = userService;
         this.userDetailService = userDetailService;
     }
 
@@ -63,24 +77,20 @@ public class SecurityConfiguration {
                 .and()
                 .csrf().disable()
 //                .cors(Customizer.withDefaults())
+//                .cors()
+//                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .apply(new CustomFilterConfigurer())
                 .and()
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+                .oauth2Login(oauth2 -> oauth2.successHandler(new OAuth2UserSuccessHandler(
+                        jwtTokenizer, userService
+                )));
         return http.build();
     }
-
-    // 인증 필터 무시 : https://skatpdnjs.tistory.com/m/74
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return web -> web.ignoring().antMatchers(
-//                "/v1/users",
-//                ""
-//        );
-//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -91,11 +101,14 @@ public class SecurityConfiguration {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        corsConfiguration.setAllowCredentials(true);
+//        corsConfiguration.setAllowCredentials(true);
 //        corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
 //        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE"));
 
         corsConfiguration.addAllowedOriginPattern("https://localhost:3000"); // 로컬 프론트에서 접근
+        corsConfiguration.addAllowedOriginPattern("https://accounts.google.com");
+
+//        corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
 
         corsConfiguration.setAllowCredentials(true); // 셋쿠키 사용하려면 클라이언트쪽에서도, 백엔드 쪽에서도 credential을 포함하도록 설정해야 함.
 
@@ -122,8 +135,11 @@ public class SecurityConfiguration {
         public void configure(HttpSecurity builder) throws Exception {
 
             AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
-
             JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer);
+
+            jwtAuthenticationFilter.setAuthenticationManager(authenticationManager);
+
+//            JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer);
 //            jwtAuthenticationFilter.setFilterProcessesUrl("/v1/auth/**");
 
             jwtAuthenticationFilter.setRequiresAuthenticationRequestMatcher(authenticationFilterPath());
@@ -138,7 +154,8 @@ public class SecurityConfiguration {
 
             builder.addFilter(corsFilter())
                    .addFilter(jwtAuthenticationFilter)
-                   .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class);
+                   .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class)
+                   .addFilterAfter(jwtVerificationFilter, OAuth2LoginAuthenticationFilter.class);
 
             /*
             * AuthenticationFilter 추가하면 Controller로 요청이 안넘어감
@@ -159,6 +176,11 @@ public class SecurityConfiguration {
         return new OrRequestMatcher(processingMatchers);
     }
 }
+
+
+
+// 인증 필터 무시 : https://skatpdnjs.tistory.com/m/74
+
 
 /*
 * jwtAuthenticationFilter.setFilterProcessesUrl("/v1/auth/**");

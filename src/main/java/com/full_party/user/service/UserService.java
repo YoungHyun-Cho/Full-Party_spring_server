@@ -16,12 +16,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CustomAuthorityUtils customAuthorityUtils;
+//    private final CustomAuthorityUtils customAuthorityUtils;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, CustomAuthorityUtils customAuthorityUtils) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.customAuthorityUtils = customAuthorityUtils;
+//        this.customAuthorityUtils = customAuthorityUtils;
     }
 
     public User createUser(User user) {
@@ -31,8 +31,8 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
 
-        List<String> roles = customAuthorityUtils.createRoles(user.getEmail());
-        user.setRoles(roles);
+//        List<String> roles = customAuthorityUtils.createRoles(user.getEmail());
+//        user.setRoles(roles);
 
         User newUser = new User(user);
 

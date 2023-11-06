@@ -51,7 +51,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
 //        System.out.println("🔴 should not filter : " + authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer undefined"));
 
-        return authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer undefined");
+        return authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer undefined") || authorization.equals("Bearer temp");
     }
 
     @Override

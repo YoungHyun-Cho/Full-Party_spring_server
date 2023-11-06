@@ -22,6 +22,17 @@ spring:
           starttls:
             enable: true
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 360581808223-e0a27i9h3ga7s11nbbp0crup54c018hg.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
+
 jwt:
   key: ${JWT_SECRET_KEY}
   access-token-expiration-minutes: 30
@@ -32,7 +43,7 @@ logging:
     org.springframework.security: DEBUG
 
 custom:
-  url: "http://localhost:8080"
+  url: "https://localhost:8080"
 
 server:
   ssl:
