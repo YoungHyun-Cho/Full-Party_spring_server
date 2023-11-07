@@ -1,6 +1,7 @@
 package com.full_party.auth.handler;
 
 import com.full_party.auth.jwt.JwtTokenizer;
+import com.full_party.exception.BusinessLogicException;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.values.SignUpType;
@@ -57,7 +58,17 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
     private Long saveUser(String email, String userName, String profileImage) {
         User user = new User(email, userName, profileImage, SignUpType.GOOGLE);
-        return userService.createUser(user).getId();
+
+        Long userId;
+
+        try {
+            userId = userService.createUser(user).getId();
+        }
+        catch (BusinessLogicException e) {
+            userId = userService.findUser(email).getId();
+        }
+
+        return userId;
     }
 
     private void redirect(HttpServletRequest request, HttpServletResponse response, String username, Long userId) throws IOException {

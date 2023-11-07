@@ -98,13 +98,13 @@ public class User extends Auditable {
         this.exp = previousUser.exp;
         this.level = previousUser.level;
         this.signUpType = previousUser.signUpType;
-        this.userName = modifiedUser.userName;
-        this.password = modifiedUser.password;
-        this.profileImage = modifiedUser.profileImage;
-        this.birth = modifiedUser.birth;
-        this.gender = modifiedUser.gender;
-        this.mobile = modifiedUser.mobile;
-        this.address = modifiedUser.address;
+        this.userName = modifiedUser.userName == null ? previousUser.userName : modifiedUser.userName;
+        this.password = modifiedUser.password == null ? previousUser.password : modifiedUser.password;
+        this.profileImage = modifiedUser.profileImage == null ? previousUser.profileImage : modifiedUser.profileImage;
+        this.birth = modifiedUser.birth == null ? previousUser.birth : modifiedUser.birth;
+        this.gender = modifiedUser.gender == null ? previousUser.gender : modifiedUser.gender;
+        this.mobile = modifiedUser.mobile == null ? previousUser.mobile : modifiedUser.mobile;
+        this.address = modifiedUser.address == null ? previousUser.address : modifiedUser.address;
     }
 
     public User(User newUser) {

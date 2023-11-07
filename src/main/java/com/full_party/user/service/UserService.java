@@ -70,7 +70,7 @@ public class UserService {
         return user;
     }
 
-    private void verifyExistsEmail(String email) {
+    private void verifyExistsEmail(String email) throws BusinessLogicException {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) throw new BusinessLogicException(ExceptionCode.USER_EXISTS);
     }

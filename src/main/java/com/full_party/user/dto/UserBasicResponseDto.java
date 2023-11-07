@@ -18,6 +18,7 @@ import java.util.Map;
 public class UserBasicResponseDto {
 
     private Long id;
+    private String email;
     private String userName;
     private String address;
     private String profileImage;
