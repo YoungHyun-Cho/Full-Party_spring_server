@@ -72,7 +72,7 @@ public class UserController {
 
     // 마이페이지 정보 제공
     @GetMapping("/{user-id}")
-    public ResponseEntity getUser(@PathVariable("user-id") Long userId) {
+    public ResponseEntity getUserInfo(@PathVariable("user-id") Long userId) {
 
         UserBasicResponseDto userBasicResponseDto = userMapper.userToUserBasicResponseDto(userService.findUser(userId));
 
@@ -89,7 +89,7 @@ public class UserController {
 
     // 유저 상세 정보 조회
     @GetMapping("/{user-id}/details")
-    public ResponseEntity getUserDetails(@PathVariable("user-id") Long userId) {
+    public ResponseEntity getUserDetailInfo(@PathVariable("user-id") Long userId) {
 
         User user = userService.findUser(userId);
 

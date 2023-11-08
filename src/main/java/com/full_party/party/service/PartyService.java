@@ -5,13 +5,11 @@ import com.full_party.exception.BusinessLogicException;
 import com.full_party.exception.ExceptionCode;
 import com.full_party.heart.service.HeartService;
 import com.full_party.party.entity.Party;
-import com.full_party.party.entity.PartyMember;
 import com.full_party.party.entity.UserParty;
 import com.full_party.party.entity.Waiter;
 import com.full_party.party.repository.PartyRepository;
 import com.full_party.party.repository.UserPartyRepository;
 import com.full_party.party.repository.WaiterRepository;
-import com.full_party.tag.entity.Tag;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.values.PartyState;
@@ -110,23 +108,24 @@ public class PartyService {
         // getPartyMembers => partyId를 받아 파티장을 포함한 파티 전체 멤버를 리스트로 리턴
 
         partyList.stream()
-                .forEach(party -> party.setMemberList(findPartyMembers(party)));
+                .forEach(party -> party.setMemberList(findPartyMembers(party, true)));
     }
 
-    private List<PartyMember> findPartyMembers(Party party) {
+    public List<Party.PartyMember> findPartyMembers(Party party, Boolean includeLeader) {
 
-        PartyMember leader = new PartyMember(party.getUser());
-        leader.setJoinDate(party.getCreatedAt());
-
-        List<PartyMember> members = userPartyRepository.findByPartyId(party.getId()).stream()
+        List<Party.PartyMember> members = userPartyRepository.findByPartyId(party.getId()).stream()
                 .map(userParty -> {
-                    PartyMember partyMember = new PartyMember(userService.findUser(userParty.getUser().getId()));
+                    Party.PartyMember partyMember = new Party.PartyMember(userService.findUser(userParty.getUser().getId()));
                     partyMember.setJoinDate(findUserParty(partyMember.getId(), party.getId()).getCreatedAt());
                     return partyMember;
                 })
                 .collect(Collectors.toList());
 
-        members.add(0, leader);
+        if (includeLeader) {
+            Party.PartyMember leader = new Party.PartyMember(party.getUser());
+            leader.setJoinDate(party.getCreatedAt());
+            members.add(0, leader);
+        }
 
         return members;
     }
@@ -145,7 +144,7 @@ public class PartyService {
 
     private Party setTransientValues(Party party) {
 
-        party.setMemberList(findPartyMembers(party));
+        party.setMemberList(findPartyMembers(party, true));
         party.setWaiterList(findWaiters(party));
         party.setHeartCount(heartService.findHearts(party).size());
 

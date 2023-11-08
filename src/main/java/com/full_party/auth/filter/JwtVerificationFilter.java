@@ -7,6 +7,7 @@ import com.full_party.auth.userdetails.UserDetailService;
 import com.full_party.auth.utils.CustomAuthorityUtils;
 import com.full_party.config.SecurityConfiguration;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -63,15 +64,14 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         }
-        catch (MalformedJwtException e) {
+        catch (MalformedJwtException | ExpiredJwtException e) {
 
-            System.out.println("❌ MalformedJwtException");
             handleExpiredJwtException(response, e);
         }
 
     }
 
-    private static void handleExpiredJwtException(HttpServletResponse response, MalformedJwtException e) {
+    private static void handleExpiredJwtException(HttpServletResponse response, JwtException e) {
         response.setStatus(401);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
