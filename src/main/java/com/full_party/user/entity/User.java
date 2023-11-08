@@ -73,10 +73,10 @@ public class User extends Auditable {
     @Column(nullable = false)
     private Gender gender;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String mobile;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false)

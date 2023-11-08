@@ -17,15 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenizer jwtTokenizer;
     private final UserService userService;
+    private static SignUpType signUpType;
 
     public OAuth2UserSuccessHandler(JwtTokenizer jwtTokenizer, UserService userService) {
         this.jwtTokenizer = jwtTokenizer;
@@ -37,27 +35,51 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Map<String, Object> attributes= oAuth2User.getAttributes();
-
-//        // test
 //
-//        Set<Map.Entry<String, Object>> attributes = oAuth2User.getAttributes().entrySet();
+        // test
 //
-//        for (Map.Entry<String, Object> entry : attributes) {
+//        Set<Map.Entry<String, Object>> attributesSet = oAuth2User.getAttributes().entrySet();
+//
+//        for (Map.Entry<String, Object> entry : attributesSet) {
 //            System.out.println("🔴" + entry.getKey() + " : " + entry.getValue());
 //        }
-//
-//        // test
 
-        Long userId = saveUser(
-                String.valueOf(attributes.get("email")),
-                String.valueOf(attributes.get("name")),
-                String.valueOf(attributes.get("picture"))
-        );
-        redirect(request, response, String.valueOf(attributes.get("email")), userId);
+        // test
+
+        Long userId;
+
+        if (attributes.containsKey("kakao_account")) {
+
+            LinkedHashMap kakaoAccount = ((LinkedHashMap) attributes.get("kakao_account"));
+            LinkedHashMap properties = ((LinkedHashMap) attributes.get("properties"));
+
+            signUpType = SignUpType.KAKAO;
+
+            userId = saveUser(
+                    String.valueOf(kakaoAccount.get("email")),
+                    String.valueOf(properties.get("nickname")),
+                    String.valueOf(properties.get("profile_image"))
+            );
+
+            redirect(request, response, String.valueOf(kakaoAccount.get("email")), userId);
+        }
+
+        else {
+
+            signUpType = SignUpType.GOOGLE;
+
+            userId = saveUser(
+                    String.valueOf(attributes.get("email")),
+                    String.valueOf(attributes.get("name")),
+                    String.valueOf(attributes.get("picture"))
+            );
+
+            redirect(request, response, String.valueOf(attributes.get("email")), userId);
+        }
     }
 
     private Long saveUser(String email, String userName, String profileImage) {
-        User user = new User(email, userName, profileImage, SignUpType.GOOGLE);
+        User user = new User(email, userName, profileImage, signUpType);
 
         Long userId;
 
@@ -108,7 +130,7 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
         queryParams.add("access_token", accessToken);
         queryParams.add("refresh_token", refreshToken);
-        queryParams.add("sign_up_by", "google");
+        queryParams.add("sign_up_by", signUpType.getType());
         queryParams.add("user_id", userId + "");
 
         return UriComponentsBuilder

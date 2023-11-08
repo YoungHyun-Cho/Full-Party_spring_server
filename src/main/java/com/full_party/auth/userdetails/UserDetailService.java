@@ -33,6 +33,7 @@ public class UserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws BusinessLogicException {
+
         Optional<User> optionalUser = userRepository.findByEmail(username);
 
         User foundUser = optionalUser.orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
