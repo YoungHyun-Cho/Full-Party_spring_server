@@ -21,6 +21,7 @@ public class PartyMemberDto {
     private String userName;
     private String address;
     private String profileImage;
+    private String message;
     private Integer exp;
     private Integer level;
     private SignUpType signUpType;

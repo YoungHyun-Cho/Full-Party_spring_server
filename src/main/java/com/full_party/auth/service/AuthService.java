@@ -3,16 +3,10 @@ package com.full_party.auth.service;
 import com.full_party.auth.jwt.JwtTokenizer;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,16 +23,20 @@ public class AuthService {
         this.userService = userService;
     }
 
-    public String reIssueAccessToken(String refreshToken) {
+    public Map<String, String> reIssueToken(String refreshToken) throws ExpiredJwtException {
+
+        Map<String, String> tokenMap = new HashMap<>();
 
         // refresh token 확인하고,
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
         Map<String, Object> claims = jwtTokenizer.getClaims(refreshToken, base64EncodedSecretKey).getBody();
 
-        // 맞으면 Accesstoken 재발급
+        // 맞으면 token 재발급
         User user = userService.findUser((String) claims.get("sub"));
-        return createAccessToken(user);
+        tokenMap.put("accessToken", delegateAccessToken(user));
+        tokenMap.put("refreshToken", delegateRefreshToken(user));
 
+        return tokenMap;
     }
 
     public ResponseCookie createCookie(String name, String value, Integer maxAge) {
@@ -52,7 +50,16 @@ public class AuthService {
                 .build();
     }
 
-    private String createAccessToken(User user) {
+    public ResponseCookie createCookie(String name, String value) {
+        return ResponseCookie.from(name, value)
+                .domain("localhost")
+                .path("/")
+                .sameSite("None")
+                .secure(true)
+                .build();
+    }
+
+    private String delegateAccessToken(User user) {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
@@ -65,5 +72,16 @@ public class AuthService {
         String accessToken = jwtTokenizer.generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
 
         return accessToken;
+    }
+
+    private String delegateRefreshToken(User user) {
+
+        String subject = user.getEmail();
+        Date expiration = jwtTokenizer.getTokenExpiration();
+        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
+
+        String refreshToken = jwtTokenizer.generateRefreshToken(subject, expiration, base64EncodedSecretKey);
+
+        return refreshToken;
     }
 }

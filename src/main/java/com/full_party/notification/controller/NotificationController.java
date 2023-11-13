@@ -31,6 +31,6 @@ public class NotificationController {
 
         List<Notification> notifications = notificationService.findAll(Utility.getUserId(userDetails));
 
-        return new ResponseEntity(notificationMapper.mapToNotificationListDto(notifications), HttpStatus.OK);
+        return new ResponseEntity(notificationMapper.mapToNotificationDtoList(notifications), HttpStatus.OK);
     }
 }

@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        System.out.println("🟥 AttempAuthentication");
+        System.out.println("🟥 AttemptAuthentication");
 
 //        try {
 //            if (request.getHeader("Authorization").equals("Bearer undefined")) {
@@ -86,7 +86,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 //        response.addCookie(createCookie("token", accessToken, 60 * 60));
 //        response.addCookie(createCookie("refresh", refreshToken, 60 * 60 * 3));
 
-        response.addHeader("Set-Cookie", createCookie("token", accessToken, 2).toString());
+        response.addHeader("Set-Cookie", createCookie("token", accessToken, 10).toString());
         response.addHeader("Set-Cookie", createCookie("refresh", refreshToken, 60).toString());
 
         this.getSuccessHandler().onAuthenticationSuccess(request, response, authResult);

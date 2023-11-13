@@ -4,6 +4,8 @@ import com.full_party.comment.dto.CommentReplyDto;
 import com.full_party.comment.dto.CommentResponseDto;
 import com.full_party.comment.mapper.CommentMapper;
 import com.full_party.comment.service.CommentService;
+import com.full_party.exception.BusinessLogicException;
+import com.full_party.exception.ExceptionCode;
 import com.full_party.notification.entity.Notification;
 import com.full_party.notification.service.NotificationService;
 import com.full_party.party.dto.*;
@@ -97,10 +99,10 @@ public class PartyController {
         PartyResponseDto partyResponseDto = partyMapper.partyToPartyResponseDto(party);
 
         commentService.findComments(partyId).stream()
-                .map(comment -> commentMapper.commentToCommentResponseDto(comment))
+                .map(comment -> commentMapper.mapToCommentResponseDto(comment))
                 .forEach(commentResponseDto -> {
                     List<CommentResponseDto> replies = commentService.findReplies(commentResponseDto.getId()).stream()
-                            .map(reply -> commentMapper.replyToCommentResponseDto(reply))
+                            .map(reply -> commentMapper.mapToCommentResponseDto(reply))
                             .collect(Collectors.toList());
                     partyResponseDto.getComments().add(new CommentReplyDto(commentResponseDto, replies));
                 }
@@ -121,8 +123,9 @@ public class PartyController {
         partyMembers.stream()
                 .forEach(partyMember -> notificationService.createNotification(
                         userService.findUser(partyMember.getId()),
-                        party,
-                        NotificationInfo.DISMISS
+                        null,
+                        NotificationInfo.DISMISS,
+                        null
                 )
         );
 
@@ -139,29 +142,32 @@ public class PartyController {
                                      @AuthenticationPrincipal UserDetails userDetails,
                                      @RequestBody WaiterDto waiterDto) {
 
-        partyService.createWaiter(Utility.getUserId(userDetails), partyId, waiterDto.getMessage());
+        Long userId = Utility.getUserId(userDetails);
+        partyService.createWaiter(userId, partyId, waiterDto.getMessage());
 
         // ‼️ 파티장
-        Notification notification = notificationService.createNotification(
+        notificationService.createNotification(
                 partyService.findParty(partyId).getUser(),
                 partyService.findParty(partyId),
-                NotificationInfo.APPLY
+                NotificationInfo.APPLY,
+                userId
         );
 
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
     // 참여 메세지 수정
-    @PatchMapping("/{party-id}/message")
-    public ResponseEntity patchApplyMessage(@PathVariable("party-id") Long partyId,
-                                            @AuthenticationPrincipal UserDetails userDetails,
-                                            @RequestBody WaiterDto waiterDto) {
+    @PatchMapping("/{party-id}/users/{user-id}/message")
+    public ResponseEntity patchMessage(@PathVariable("party-id") Long partyId,
+                                       @PathVariable("user-id") Long userId,
+                                       @AuthenticationPrincipal UserDetails userDetails,
+                                       @RequestBody PartyMemberDto partyMemberDto) {
 
-        partyService.updateWaiterMessage(Utility.getUserId(userDetails), partyId, waiterDto.getMessage());
+        partyService.updateMessage(userId, partyId, partyMemberDto.getMessage());
 
         return new ResponseEntity(HttpStatus.OK);
 
-//        Waiter waiter = partyService.updateWaiterMessage(partyMapper.waiterDtoToWaiter(waiterDto));
+//        Waiter waiter = partyService.updateWaiterMessage(partyMapper.waiterDtoToWaiter(partyMemberDto));
 //
 //        return new ResponseEntity(partyMapper.waiterToWaiterDto(waiter), HttpStatus.OK);
     }
@@ -179,7 +185,8 @@ public class PartyController {
         notificationService.createNotification(
                 userService.findUser(userId),
                 partyService.findParty(partyId),
-                NotificationInfo.ACCEPT
+                NotificationInfo.ACCEPT,
+                null
         );
 
         return new ResponseEntity(HttpStatus.CREATED);
@@ -193,23 +200,25 @@ public class PartyController {
                                             @AuthenticationPrincipal UserDetails userDetails) {
 
         // ‼️ 파티장 || 파티원
-        if (userId == Utility.getUserId(userDetails)) {
+        if (userId == Utility.getUserId(userDetails)) { // 취소
 
             Party party = partyService.findParty(partyId);
 
             notificationService.createNotification(
                     party.getUser(),
                     party,
-                    NotificationInfo.CANCEL
+                    NotificationInfo.CANCEL,
+                    userId
             );
 
         }
-        else {
+        else { // 거절
 
             notificationService.createNotification(
                     userService.findUser(userId),
                     partyService.findParty(partyId),
-                    NotificationInfo.DENY
+                    NotificationInfo.DENY,
+                    null
             );
         }
 
@@ -235,7 +244,8 @@ public class PartyController {
             notificationService.createNotification(
                     party.getUser(),
                     party,
-                    NotificationInfo.QUIT
+                    NotificationInfo.QUIT,
+                    userId
             );
 
         }
@@ -243,7 +253,8 @@ public class PartyController {
             notificationService.createNotification(
                     userService.findUser(userId),
                     partyService.findParty(partyId),
-                    NotificationInfo.EXPEL
+                    NotificationInfo.EXPEL,
+                    null
             );
         }
 
@@ -257,6 +268,27 @@ public class PartyController {
     public ResponseEntity patchParty(@PathVariable("party-id") Long partyId,
                                      @RequestBody PartyRequestDto partyRequestDto) {
 
+        System.out.println("partyRequestDto.getId() = " + partyRequestDto.getId());
+        System.out.println("partyRequestDto.getName() = " + partyRequestDto.getName());
+        System.out.println("partyRequestDto.getImage() = " + partyRequestDto.getImage());
+        System.out.println("partyRequestDto.getContent() = " + partyRequestDto.getContent());
+        System.out.println("partyRequestDto.getStartDate() = " + partyRequestDto.getStartDate());
+        System.out.println("partyRequestDto.getEndDate() = " + partyRequestDto.getEndDate());
+        System.out.println("partyRequestDto.getIsOnline() = " + partyRequestDto.getIsOnline());
+        System.out.println("partyRequestDto.getPrivateLink() = " + partyRequestDto.getPrivateLink());
+        System.out.println("partyRequestDto.getRegion() = " + partyRequestDto.getRegion());
+        System.out.println("partyRequestDto.getLocation() = " + partyRequestDto.getLocation());
+        System.out.println("partyRequestDto.getMemberLimit() = " + partyRequestDto.getMemberLimit());
+        System.out.println("partyRequestDto.getCoordinates() = " + partyRequestDto.getCoordinates());
+        System.out.println("partyRequestDto.getPartyState() = " + partyRequestDto.getPartyState());
+        partyRequestDto.getTags().stream().forEach(tag -> System.out.println(tag));
+
+
+
+
+
+
+
         partyRequestDto.setId(partyId);
 
         Party party = partyService.updateParty(partyMapper.partyRequestDtoToParty(partyRequestDto));
@@ -265,27 +297,38 @@ public class PartyController {
     }
 
     // 파티 상태 변경
-    @PatchMapping("/{party-id}/states")
+    @PatchMapping("/{party-id}/state")
     public ResponseEntity patchPartyState(@PathVariable("party-id") Long partyId,
-                                          @RequestParam("state") PartyState partyState) {
+                                          @RequestParam("party_state") String partyStateStr) {
+
+        PartyState partyState = PartyState.fromString(partyStateStr);
 
         Party party = partyService.updatePartyState(partyId, partyState);
 
-        // ‼️ 파티원 모두에게 퀘스트 완료 알림 저농
+        NotificationInfo notificationInfo;
+        if (partyState == PartyState.FULL_PARTY) notificationInfo = NotificationInfo.FULL_PARTY;
+        else if (partyState == PartyState.RECRUITING) notificationInfo = NotificationInfo.RE_PARTY;
+        else if (partyState == PartyState.COMPLETED) {
+            notificationInfo = NotificationInfo.COMPLETE;
+            // 파티원에게만 리뷰 요청 전송
+            partyService.findPartyMembers(party, false).stream()
+                    .forEach(partyMember -> notificationService.createNotification(
+                                    userService.findUser(partyMember.getId()),
+                                    party,
+                                    NotificationInfo.REVIEW,
+                                    null
+                            )
+                    );
+
+        }
+        else throw new BusinessLogicException(ExceptionCode.PARTY_STATE_NOT_FOUND);
+
         partyService.findPartyMembers(party, true).stream()
                 .forEach(partyMember -> notificationService.createNotification(
                         userService.findUser(partyMember.getId()),
                         party,
-                        NotificationInfo.COMPLETE
-                )
-        );
-
-        // 파티원에게만 리뷰 요청 전송
-        partyService.findPartyMembers(party, false).stream()
-                .forEach(partyMember -> notificationService.createNotification(
-                        userService.findUser(partyMember.getId()),
-                        party,
-                        NotificationInfo.REVIEW
+                        notificationInfo,
+                        null
                 )
         );
 
@@ -312,4 +355,5 @@ public class PartyController {
 
         return new ResponseEntity(HttpStatus.OK);
     }
+
 }

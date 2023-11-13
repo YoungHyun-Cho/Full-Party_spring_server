@@ -36,13 +36,13 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Map<String, Object> attributes= oAuth2User.getAttributes();
 //
-        // test
-//
-//        Set<Map.Entry<String, Object>> attributesSet = oAuth2User.getAttributes().entrySet();
-//
-//        for (Map.Entry<String, Object> entry : attributesSet) {
-//            System.out.println("🔴" + entry.getKey() + " : " + entry.getValue());
-//        }
+//         test
+
+        Set<Map.Entry<String, Object>> attributesSet = oAuth2User.getAttributes().entrySet();
+
+        for (Map.Entry<String, Object> entry : attributesSet) {
+            System.out.println("🔴" + entry.getKey() + " : " + entry.getValue());
+        }
 
         // test
 

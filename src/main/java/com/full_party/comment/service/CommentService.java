@@ -32,7 +32,7 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    private Comment findComment(Long commentId) {
+    public Comment findComment(Long commentId) {
 
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         Comment comment = optionalComment.orElseThrow(() -> new BusinessLogicException(ExceptionCode.COMMENT_NOT_FOUND));
@@ -60,4 +60,10 @@ public class CommentService {
         Comment foundComment = findComment(commentId);
         commentRepository.delete(foundComment);
     }
+
+    public Reply createReply(Reply reply) {
+        return replyRepository.save(reply);
+    }
+
+
 }

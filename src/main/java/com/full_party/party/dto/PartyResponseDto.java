@@ -15,20 +15,20 @@ import java.util.List;
 @Setter
 public class PartyResponseDto {
     private Long id;
-    private String name;
     private Long userId;
+    private String name;
     private String image;
-    private Integer memberLimit;
-    private String content;
-    private Date startDate;
-    private Date endDate;
-    private Boolean isOnline;
     private String region;
     private String location;
     private String privateLink;
-    private Coordinates coordinates;
-    private Boolean isHeart;
+    private String content;
+    private Integer memberLimit;
     private Integer heartCount;
+    private Boolean isOnline;
+    private Boolean isHeart;
+    private Date startDate;
+    private Date endDate;
+    private Coordinates coordinates;
     private PartyState partyState;
     private List<CommentReplyDto> comments = new ArrayList<>();
     private List<String> tags;

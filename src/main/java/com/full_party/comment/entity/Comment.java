@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comment extends Auditable {
+public class Comment extends Auditable implements QnA {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,4 +37,8 @@ public class Comment extends Auditable {
 
     @Column(nullable = false)
     private String content;
+
+    public Comment(Long id) {
+        this.id = id;
+    }
 }

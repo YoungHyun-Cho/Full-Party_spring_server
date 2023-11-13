@@ -15,6 +15,9 @@ public class NotificationDto {
 
     private String subject;
     private String content;
+    private String type;
+    private String label;
+    private Long partyId;
     private LocalDateTime createdAt;
 }
 

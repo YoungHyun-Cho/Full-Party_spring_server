@@ -117,6 +117,7 @@ public class PartyService {
                 .map(userParty -> {
                     Party.PartyMember partyMember = new Party.PartyMember(userService.findUser(userParty.getUser().getId()));
                     partyMember.setJoinDate(findUserParty(partyMember.getId(), party.getId()).getCreatedAt());
+                    partyMember.setMessage(userParty.getMessage());
                     return partyMember;
                 })
                 .collect(Collectors.toList());
@@ -196,6 +197,8 @@ public class PartyService {
 
         Party updatedParty = new Party(foundParty, party);
 
+        // 태그는 따로 다루어야 함.
+
         return partyRepository.save(updatedParty);
     }
 
@@ -210,7 +213,7 @@ public class PartyService {
 
     private Party findVerifiedParty(Long partyId) {
         Optional<Party> optionalParty = partyRepository.findById(partyId);
-        Party party = optionalParty.orElseThrow(() -> new BusinessLogicException(ExceptionCode.PARTY_EXISTS));
+        Party party = optionalParty.orElseThrow(() -> new BusinessLogicException(ExceptionCode.PARTY_NOT_FOUND));
         return party;
     }
 
@@ -240,10 +243,17 @@ public class PartyService {
 //        return waiterRepository.save(foundWaiter);
 //    }
 
-    public Waiter updateWaiterMessage(Long userId, Long partyId, String message) {
-        Waiter foundWaiter = findWaiter(userId, partyId);
-        foundWaiter.setMessage(message);
-        return waiterRepository.save(foundWaiter);
+    public void updateMessage(Long userId, Long partyId, String message) {
+        try {
+            Waiter foundWaiter = findWaiter(userId, partyId);
+            foundWaiter.setMessage(message);
+            waiterRepository.save(foundWaiter);
+        }
+        catch (BusinessLogicException e) {
+            UserParty foundUserParty = findUserParty(userId, partyId);
+            foundUserParty.setMessage(message);
+            userPartyRepository.save(foundUserParty);
+        }
     }
 
     private Waiter findWaiter(Long userId, Long partyId) {
@@ -265,9 +275,7 @@ public class PartyService {
 
     public UserParty createUserParty(Long userId, Long partyId) {
 
-        System.out.println("🟥 userId:" + userId + "/ partyId:" + partyId);
         Waiter foundWaiter = findWaiter(userId, partyId);
-
 
         UserParty userParty = new UserParty(
                 foundWaiter.getUser(),

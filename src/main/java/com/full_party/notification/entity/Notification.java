@@ -19,10 +19,10 @@ public class Notification extends Auditable {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "PARTY_ID")
     private Party party;
 

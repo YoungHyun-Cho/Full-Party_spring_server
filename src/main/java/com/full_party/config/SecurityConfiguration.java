@@ -113,6 +113,7 @@ public class SecurityConfiguration {
         corsConfiguration.setAllowCredentials(true); // 셋쿠키 사용하려면 클라이언트쪽에서도, 백엔드 쪽에서도 credential을 포함하도록 설정해야 함.
 
         corsConfiguration.addExposedHeader("Authorization");
+        corsConfiguration.addExposedHeader("Location");
         corsConfiguration.addExposedHeader("Refresh");
         corsConfiguration.addExposedHeader("Set-Cookie");
 

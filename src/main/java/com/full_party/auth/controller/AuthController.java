@@ -1,21 +1,21 @@
 package com.full_party.auth.controller;
 
-import com.full_party.auth.dto.AuthDto;
 import com.full_party.auth.service.AuthService;
-import com.full_party.exception.BusinessLogicException;
-import com.full_party.exception.ExceptionCode;
 import com.full_party.user.entity.User;
 import com.full_party.user.mapper.UserMapper;
 import com.full_party.user.service.UserService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import com.full_party.util.Utility;
+import com.full_party.values.SignUpType;
+import io.jsonwebtoken.ExpiredJwtException;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/auth")
@@ -93,14 +93,37 @@ public class AuthController {
         System.out.println("🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥 AuthController refresh");
 
         // 액세스토큰 재발급
-        String accessToken = authService.reIssueAccessToken(refreshToken);
+//        String accessToken = authService.reIssueToken(refreshToken);
 
-        // 헤더 설정
+        try {
+            Map<String, String> tokenMap = authService.reIssueToken(refreshToken);
+
+            // 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            ResponseCookie accessTokenCookie = authService.createCookie("token", tokenMap.get("accessToken"), 10);
+            ResponseCookie refreshTokenCookie = authService.createCookie("refresh", tokenMap.get("refreshToken"), 60);
+            headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+            headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+            return new ResponseEntity(headers, HttpStatus.OK);
+        }
+        catch (ExpiredJwtException e) {
+            System.out.println("❌ " + e.getCause());
+            System.out.println("❌ " + e.getMessage());
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/signout")
+    public ResponseEntity signOut() {
+
         HttpHeaders headers = new HttpHeaders();
-        ResponseCookie cookie = authService.createCookie("token", accessToken, 30);
-        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+        ResponseCookie accessTokenCookie = authService.createCookie("token", "temp");
+        ResponseCookie refreshTokenCookie = authService.createCookie("refresh", "temp");
+        headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-        return new ResponseEntity(headers, HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     // 마이페이지 재인증

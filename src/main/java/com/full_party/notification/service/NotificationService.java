@@ -18,8 +18,8 @@ public class NotificationService {
         this.notificationRepository = notificationRepository;
     }
 
-    public Notification createNotification(User user, Party party, NotificationInfo notificationType, String subject) {
-        return notificationRepository.save(new Notification(user, party, notificationType, subject));
+    public Notification createNotification(User user, Party party, NotificationInfo notificationInfo, Long subjectId) {
+        return notificationRepository.save(new Notification(user, party, notificationInfo, subjectId));
     }
 
     public Boolean checkIsUnread(Long userId) {

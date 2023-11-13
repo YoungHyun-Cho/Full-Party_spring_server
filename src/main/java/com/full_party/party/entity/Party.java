@@ -73,20 +73,20 @@ public class Party extends Auditable {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Tag> tagList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "party", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserParty> userParties = new ArrayList<>();
 
-    @OneToMany(mappedBy = "party")
+    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "party")
+    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Heart> hearts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "party")
+    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Waiter> waiters = new ArrayList<>();
 
     @Transient
@@ -115,19 +115,19 @@ public class Party extends Auditable {
     }
 
     public Party(Party previousParty, Party modifiedParty) {
-        this.id = previousParty.getId();
+        this.id = modifiedParty.getId();
         this.name = modifiedParty.getName();
         this.image = modifiedParty.getImage();
         this.content = modifiedParty.getContent();
-        this.startDate = modifiedParty.startDate;
-        this.endDate = modifiedParty.endDate;
-        this.isOnline = modifiedParty.isOnline;
-        this.privateLink = modifiedParty.privateLink;
+        this.startDate = modifiedParty.getStartDate();
+        this.endDate = modifiedParty.getEndDate();
+        this.isOnline = modifiedParty.getIsOnline();
+        this.privateLink = modifiedParty.getPrivateLink();
         this.region = modifiedParty.getRegion();
         this.location = modifiedParty.getLocation();
-        this.memberLimit = modifiedParty.memberLimit;
+        this.memberLimit = modifiedParty.getMemberLimit();
         this.coordinates = modifiedParty.getCoordinates();
-        this.partyState = modifiedParty.partyState;
+        this.partyState = previousParty.getPartyState();
         this.user = previousParty.getUser();
         this.tagList = modifiedParty.tagList;
         this.userParties = previousParty.userParties;
@@ -149,6 +149,7 @@ public class Party extends Auditable {
         private String userName;
         private String address;
         private String profileImage;
+        private String message;
         private Integer exp;
         private Integer level;
         private SignUpType signUpType;
