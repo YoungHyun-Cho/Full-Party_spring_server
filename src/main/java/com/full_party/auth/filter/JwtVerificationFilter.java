@@ -35,22 +35,20 @@ import java.util.NoSuchElementException;
 @Component
 public class JwtVerificationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenizer jwtTokenizer;
     private final CustomAuthorityUtils customAuthorityUtils;
     private final UserDetailService userDetailService;
+    private final JwtTokenizer jwtTokenizer;
 
-    public JwtVerificationFilter(JwtTokenizer jwtTokenizer, CustomAuthorityUtils customAuthorityUtils, UserDetailService userDetailService) {
-        this.jwtTokenizer = jwtTokenizer;
+    public JwtVerificationFilter(CustomAuthorityUtils customAuthorityUtils, UserDetailService userDetailService, JwtTokenizer jwtTokenizer) {
         this.customAuthorityUtils = customAuthorityUtils;
         this.userDetailService = userDetailService;
+        this.jwtTokenizer = jwtTokenizer;
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
         String authorization = request.getHeader("Authorization");
-
-//        System.out.println("🔴 should not filter : " + authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer undefined"));
 
         return authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer undefined") || authorization.equals("Bearer temp");
     }
@@ -85,9 +83,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     }
 
     private Map<String, Object> verifyJws(HttpServletRequest request) {
+
         String jws = request.getHeader("Authorization").replace("Bearer ", "");
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-        Map<String, Object> claims = jwtTokenizer.getClaims(jws, base64EncodedSecretKey).getBody();
+        Map<String, Object> claims = jwtTokenizer.getClaims(jws).getBody();
 
         return claims;
     }
@@ -95,11 +93,10 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
     private void setAuthenticationToContext(Map<String, Object> claims) throws NoSuchElementException {
 
         String username = (String) claims.get("username");
-//        List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities((List) claims.get("roles"));
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 (UserDetail) userDetailService.loadUserByUsername(username), // https://devjem.tistory.com/70
                 null
-//                authorities
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

@@ -18,12 +18,12 @@ import java.util.Set;
 @Service
 public class AuthService {
 
-    private final JwtTokenizer jwtTokenizer;
     private final UserService userService;
+    private final JwtTokenizer jwtTokenizer;
 
-    public AuthService(JwtTokenizer jwtTokenizer, UserService userService) {
-        this.jwtTokenizer = jwtTokenizer;
+    public AuthService(UserService userService, JwtTokenizer jwtTokenizer) {
         this.userService = userService;
+        this.jwtTokenizer = jwtTokenizer;
     }
 
     public Map<String, String> reIssueToken(String refreshToken) throws ExpiredJwtException {
@@ -31,8 +31,7 @@ public class AuthService {
         Map<String, String> tokenMap = new HashMap<>();
 
         // refresh token 확인하고,
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-        Map<String, Object> claims = jwtTokenizer.getClaims(refreshToken, base64EncodedSecretKey).getBody();
+        Map<String, Object> claims = jwtTokenizer.getClaims(refreshToken).getBody();
 
         Set<Map.Entry<String, Object>> entrySet = claims.entrySet();
         entrySet.stream().forEach(entry -> System.out.println("🟦 " + entry.getKey() + " : " + entry.getValue()));
@@ -41,55 +40,9 @@ public class AuthService {
 
         // 맞으면 token 재발급
         User user = userService.findUser((String) claims.get("sub"));
-        tokenMap.put("accessToken", delegateAccessToken(user));
-        tokenMap.put("refreshToken", delegateRefreshToken(user));
+        tokenMap.put("accessToken", jwtTokenizer.delegateAccessToken(user));
+        tokenMap.put("refreshToken", jwtTokenizer.delegateRefreshToken(user));
 
         return tokenMap;
-    }
-
-    public ResponseCookie createCookie(String name, String value, Integer maxAge) {
-
-        return ResponseCookie.from(name, value)
-                .domain("localhost")
-                .path("/")
-                .sameSite("None")
-                .maxAge(Duration.ofMinutes(maxAge).getSeconds())
-                .secure(true)
-                .build();
-    }
-
-    public ResponseCookie createCookie(String name, String value) {
-        return ResponseCookie.from(name, value)
-                .domain("localhost")
-                .path("/")
-                .sameSite("None")
-                .secure(true)
-                .build();
-    }
-
-    private String delegateAccessToken(User user) {
-
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
-        claims.put("username", user.getEmail());
-
-        String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getAccessTokenExpiration();
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-
-        String accessToken = jwtTokenizer.generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
-
-        return accessToken;
-    }
-
-    private String delegateRefreshToken(User user) {
-
-        String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getRefreshTokenExpiration();
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-
-        String refreshToken = jwtTokenizer.generateRefreshToken(subject, expiration, base64EncodedSecretKey);
-
-        return refreshToken;
     }
 }

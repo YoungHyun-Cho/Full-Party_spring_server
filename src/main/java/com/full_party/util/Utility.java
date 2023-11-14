@@ -1,14 +1,13 @@
 package com.full_party.util;
 
 import com.full_party.auth.userdetails.UserDetail;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.reactive.HttpComponentsClientHttpConnector;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.Duration;
 
 public class Utility {
 
@@ -16,26 +15,23 @@ public class Utility {
         return ((UserDetail) userDetails).getId();
     }
 
-    public static <T> ResponseEntity<T> sendRequest(HttpMethod httpMethod, String url, HttpHeaders headers, Class<T> classType) {
+    public static ResponseCookie createCookie(String name, String value, Integer maxAge) {
 
-        System.out.println("🟥 sendRequest");
-        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-//        return restTemplate.getForObject(url, classType);
+        return ResponseCookie.from(name, value)
+                .domain("localhost")
+                .path("/")
+                .sameSite("None")
+                .maxAge(Duration.ofMinutes(maxAge).getSeconds())
+                .secure(true)
+                .build();
+    }
 
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-
-        // 요청 보내기
-        ResponseEntity<T> responseEntity = restTemplate.exchange(
-                url,
-                httpMethod,
-                requestEntity,
-                classType
-        );
-
-        // 응답 처리
-//        T responseBody = responseEntity.getBody();
-        System.out.println(responseEntity.getBody());
-
-        return responseEntity;
+    public static ResponseCookie createCookie(String name, String value) {
+        return ResponseCookie.from(name, value)
+                .domain("localhost")
+                .path("/")
+                .sameSite("None")
+                .secure(true)
+                .build();
     }
 }

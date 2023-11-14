@@ -85,24 +85,15 @@ public class AuthController {
     @GetMapping("/refresh")
     public ResponseEntity refresh(@RequestHeader("Refresh") String refreshToken) {
 
-        /*
-        * 액세스 토큰 재발급해주고 200 응답해야 함.
-        *
-        * */
-
         System.out.println("🟥🟥🟥 AuthController refresh");
         System.out.println("🟥🟥🟥 Refresh : " + refreshToken);
-
-        // 액세스토큰 재발급
-//        String accessToken = authService.reIssueToken(refreshToken);
 
         try {
             Map<String, String> tokenMap = authService.reIssueToken(refreshToken);
 
-            // 헤더 설정
             HttpHeaders headers = new HttpHeaders();
-            ResponseCookie accessTokenCookie = authService.createCookie("token", tokenMap.get("accessToken"), 10);
-            ResponseCookie refreshTokenCookie = authService.createCookie("refresh", tokenMap.get("refreshToken"), 60);
+            ResponseCookie accessTokenCookie = Utility.createCookie("token", tokenMap.get("accessToken"), 10);
+            ResponseCookie refreshTokenCookie = Utility.createCookie("refresh", tokenMap.get("refreshToken"), 60);
             headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
             headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
@@ -119,33 +110,11 @@ public class AuthController {
     public ResponseEntity signOut() {
 
         HttpHeaders headers = new HttpHeaders();
-        ResponseCookie accessTokenCookie = authService.createCookie("token", "temp");
-        ResponseCookie refreshTokenCookie = authService.createCookie("refresh", "temp");
+        ResponseCookie accessTokenCookie = Utility.createCookie("token", "temp");
+        ResponseCookie refreshTokenCookie = Utility.createCookie("refresh", "temp");
         headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
         headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         return new ResponseEntity(HttpStatus.OK);
     }
-
-    // 마이페이지 재인증
-//    @PostMapping("/verification")
-//    public ResponseEntity verifyUser() {
-//
-//        return new ResponseEntity(HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/error")
-//    public ResponseEntity failedAuthentication(@RequestParam("errMsg") String errMsg) {
-//
-//        System.out.println("❌");
-//
-//        throw new BusinessLogicException(errMsg);
-//    }
-
-    /*
-    * 문제 :
-    * - /verification으로 요청 -> 인증 실패 -> error, errMsg 파라미터 붙여서 redirect -> 다시 authenticationFilter 진입
-    * -
-    *
-    * */
 }

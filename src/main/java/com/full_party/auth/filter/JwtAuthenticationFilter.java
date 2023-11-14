@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.full_party.auth.dto.AuthDto;
 import com.full_party.auth.jwt.JwtTokenizer;
 import com.full_party.user.entity.User;
+import com.full_party.util.Utility;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -47,24 +48,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         System.out.println("🟥 AttemptAuthentication");
 
-//        try {
-//            if (request.getHeader("Authorization").equals("Bearer undefined")) {
-//                String refreshToken = request.getHeader("Refresh");
-//                System.out.println("🟥 " + refreshToken);
-//                String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-//                Map<String, Object> claims = jwtTokenizer.getClaims(refreshToken, base64EncodedSecretKey).getBody();
-////                System.out.println("claims.get(\"username\") : " + claims.get("username"));
-////                System.out.println("claims.get(\"userId\") : " + claims.get("userId"));
-//                claims.keySet().stream().forEach(el -> System.out.println(el));
-//                System.out.println(claims.get("sub"));
-//                System.out.println(claims.get("iat"));
-//                System.out.println(claims.get("exp"));
-//
-//
-//            }
-//        }
-//        catch (NullPointerException e) {}
-
         ObjectMapper objectMapper = new ObjectMapper();
         AuthDto authDto = objectMapper.readValue(request.getInputStream(), AuthDto.class);
 
@@ -78,69 +61,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         User user = (User) authResult.getPrincipal();
 
-        String accessToken = delegateAccessToken(user);
-        String refreshToken = delegateRefreshToken(user);
+        String accessToken = jwtTokenizer.delegateAccessToken(user);
+        String refreshToken = jwtTokenizer.delegateRefreshToken(user);
 
         response.setHeader("Authorization", "Bearer " + accessToken);
         response.setHeader("Refresh", refreshToken);
-//        response.addCookie(createCookie("token", accessToken, 60 * 60));
-//        response.addCookie(createCookie("refresh", refreshToken, 60 * 60 * 3));
 
-        response.addHeader("Set-Cookie", createCookie("token", accessToken, 10).toString());
-        response.addHeader("Set-Cookie", createCookie("refresh", refreshToken, 60).toString());
+        response.addHeader("Set-Cookie", Utility.createCookie("token", accessToken, 10).toString());
+        response.addHeader("Set-Cookie", Utility.createCookie("refresh", refreshToken, 60).toString());
 
         this.getSuccessHandler().onAuthenticationSuccess(request, response, authResult);
 
-//        SecurityContextHolder.getContext().setAuthentication(authResult); // SecurityContextHolder에는 UserDetail이 잘 들어감.
-
         super.successfulAuthentication(request, response, chain, authResult);
         chain.doFilter(request, response);
-    }
-
-    private ResponseCookie createCookie(String name, String value, Integer maxAge) {
-
-//        Cookie cookie = new Cookie(name, value);
-//        cookie.setDomain("localhost");
-//        cookie.setPath("/");
-//        cookie.setMaxAge(maxAge);
-//        cookie.setHttpOnly(true);
-
-        return ResponseCookie.from(name, value)
-                .domain("localhost")
-                .path("/")
-                .sameSite("None")
-                .maxAge(Duration.ofMinutes(maxAge).getSeconds())
-                .secure(true)
-                .build();
-
-//        return cookie;
-
-        // 🟥 HTTPS 적용 고려해보자... 어차피 해야 하니까
-    }
-
-    private String delegateAccessToken(User user) {
-
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
-        claims.put("username", user.getEmail());
-
-        String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getAccessTokenExpiration();
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-
-        String accessToken = jwtTokenizer.generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
-
-        return accessToken;
-    }
-
-    private String delegateRefreshToken(User user) {
-
-        String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getRefreshTokenExpiration();
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-
-        String refreshToken = jwtTokenizer.generateRefreshToken(subject, expiration, base64EncodedSecretKey);
-
-        return refreshToken;
     }
 }

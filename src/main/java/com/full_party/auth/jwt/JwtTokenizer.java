@@ -1,5 +1,6 @@
 package com.full_party.auth.jwt;
 
+import com.full_party.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -10,11 +11,11 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -32,12 +33,48 @@ public class JwtTokenizer {
     @Value("${jwt.refresh-token-expiration-minutes}")
     private int refreshTokenExpirationMinutes;
 
-    public String encodeBase64SecretKey(String secretKey) {
-        return Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
+    public Jws<Claims> getClaims(String jws) {
+
+        String key = encodeBase64SecretKey();
+
+        Jws<Claims> claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(jws);
+
+        return claims;
     }
 
-    public String generateAccessToken(Map<String, Object> claims, String subject,
-                                      Date expiration, String base64EncodedSecretKey) {
+    private static Key getKeyFromBase64EncodedKey(String base64EncodedSecretKey) {
+        byte[] keyBytes = Decoders.BASE64.decode(base64EncodedSecretKey);
+        Key key = Keys.hmacShaKeyFor(keyBytes);
+        return key;
+    }
+
+    public String delegateAccessToken(User user) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("username", user.getEmail());
+
+        String subject = user.getEmail();
+        Date expiration = getAccessTokenExpiration();
+        String base64EncodedSecretKey = encodeBase64SecretKey();
+
+        return generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
+    }
+
+    public String delegateRefreshToken(User user) {
+
+        String subject = user.getEmail();
+        Date expiration = getRefreshTokenExpiration();
+        String base64EncodedSecretKey = encodeBase64SecretKey();
+
+        return generateRefreshToken(subject, expiration, base64EncodedSecretKey);
+    }
+
+    private static String generateAccessToken(Map<String, Object> claims, String subject,
+                                              Date expiration, String base64EncodedSecretKey) {
         Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
 
         return Jwts.builder()
@@ -49,7 +86,7 @@ public class JwtTokenizer {
                 .compact();
     }
 
-    public String generateRefreshToken(String subject, Date expiration, String base64EncodedSecretKey) {
+    private static String generateRefreshToken(String subject, Date expiration, String base64EncodedSecretKey) {
 
         Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
 
@@ -61,28 +98,11 @@ public class JwtTokenizer {
                 .compact();
     }
 
-    public Jws<Claims> getClaims(String jws, String base64EncodedSecretKey) {
-        Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
-
-        Jws<Claims> claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(jws);
-
-        return claims;
+    private String encodeBase64SecretKey() {
+        return Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public void verifySignature(String jws, String base64EncodedSecretKey) {
-
-        Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
-
-        Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(jws);
-    }
-
-    public Date getAccessTokenExpiration() {
+    private Date getAccessTokenExpiration() {
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, accessTokenExpirationMinutes);
@@ -91,7 +111,7 @@ public class JwtTokenizer {
         return expiration;
     }
 
-    public Date getRefreshTokenExpiration() {
+    private Date getRefreshTokenExpiration() {
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, refreshTokenExpirationMinutes);
@@ -99,18 +119,4 @@ public class JwtTokenizer {
 
         return expiration;
     }
-
-    private Key getKeyFromBase64EncodedKey(String base64EncodedSecretKey) {
-        byte[] keyBytes = Decoders.BASE64.decode(base64EncodedSecretKey);
-        Key key = Keys.hmacShaKeyFor(keyBytes);
-        return key;
-    }
-
-//    public Map<String, Object> verifyJws(HttpServletRequest request) {
-//        String jws = request.getHeader("Authorization").replace("Bearer ", "");
-//        String base64EncodedSecretKey = encodeBase64SecretKey(getSecretKey());
-//        Map<String, Object> claims = getClaims(jws, base64EncodedSecretKey).getBody();
-//
-//        return claims;
-//    }
 }

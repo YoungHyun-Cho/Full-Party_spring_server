@@ -20,14 +20,13 @@ import java.net.URI;
 import java.util.*;
 
 public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-    private final JwtTokenizer jwtTokenizer;
     private final UserService userService;
+    private final JwtTokenizer jwtTokenizer;
     private static SignUpType signUpType;
 
-    public OAuth2UserSuccessHandler(JwtTokenizer jwtTokenizer, UserService userService) {
-        this.jwtTokenizer = jwtTokenizer;
+    public OAuth2UserSuccessHandler(UserService userService, JwtTokenizer jwtTokenizer) {
         this.userService = userService;
+        this.jwtTokenizer = jwtTokenizer;
     }
 
     @Override
@@ -46,7 +45,7 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         // test
 
-        Long userId;
+        User user;
 
         if (attributes.containsKey("kakao_account")) {
 
@@ -55,83 +54,55 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
             signUpType = SignUpType.KAKAO;
 
-            userId = saveUser(
+            user = saveUser(
                     String.valueOf(kakaoAccount.get("email")),
                     String.valueOf(properties.get("nickname")),
                     String.valueOf(properties.get("profile_image"))
             );
 
-            redirect(request, response, String.valueOf(kakaoAccount.get("email")), userId);
+            redirect(request, response, user);
         }
 
         else {
 
             signUpType = SignUpType.GOOGLE;
 
-            userId = saveUser(
+            user = saveUser(
                     String.valueOf(attributes.get("email")),
                     String.valueOf(attributes.get("name")),
                     String.valueOf(attributes.get("picture"))
             );
 
-            redirect(request, response, String.valueOf(attributes.get("email")), userId);
+            redirect(request, response, user);
         }
     }
 
-    private Long saveUser(String email, String userName, String profileImage) {
+    private User saveUser(String email, String userName, String profileImage) {
         User user = new User(email, userName, profileImage, signUpType);
 
-        Long userId;
-
         try {
-            userId = userService.createUser(user).getId();
+            return userService.createUser(user);
         }
         catch (BusinessLogicException e) {
-            userId = userService.findUser(email).getId();
+            return userService.findUser(email);
         }
-
-        return userId;
     }
 
-    private void redirect(HttpServletRequest request, HttpServletResponse response, String username, Long userId) throws IOException {
+    private void redirect(HttpServletRequest request, HttpServletResponse response, User user) throws IOException {
 
-        String accessToken = delegateAccessToken(username);
-        String refreshToken = delegateRefreshToken(username);
+        String accessToken = jwtTokenizer.delegateAccessToken(user);
+        String refreshToken = jwtTokenizer.delegateRefreshToken(user);
 
-        String uri = createURI(accessToken, refreshToken, userId).toString();
+        String uri = createURI(accessToken, refreshToken, user).toString();
         getRedirectStrategy().sendRedirect(request, response, uri);
     }
 
-    private String delegateAccessToken(String username) {
-
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("username", username);
-
-        String subject = username;
-        Date expiration = jwtTokenizer.getAccessTokenExpiration();
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-
-        String accessToken = jwtTokenizer.generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
-
-        return accessToken;
-    }
-
-    private String delegateRefreshToken(String username) {
-        String subject = username;
-        Date expiration = jwtTokenizer.getRefreshTokenExpiration();
-        String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
-
-        String refreshToken = jwtTokenizer.generateRefreshToken(subject, expiration, base64EncodedSecretKey);
-
-        return refreshToken;
-    }
-
-    private URI createURI(String accessToken, String refreshToken, Long userId) {
+    private URI createURI(String accessToken, String refreshToken, User user) {
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
         queryParams.add("access_token", accessToken);
         queryParams.add("refresh_token", refreshToken);
         queryParams.add("sign_up_by", signUpType.getType());
-        queryParams.add("user_id", userId + "");
+        queryParams.add("user_id", user.getId() + "");
 
         return UriComponentsBuilder
                 .newInstance()

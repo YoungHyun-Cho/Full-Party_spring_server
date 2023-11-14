@@ -42,32 +42,21 @@ import java.util.List;
 
 @Configuration
 public class SecurityConfiguration {
-
-    private final JwtTokenizer jwtTokenizer;
     private final UserAuthenticationSuccessHandler userAuthenticationSuccessHandler;
     private final UserAuthenticationFailureHandler userAuthenticationFailureHandler;
     private final CustomAuthorityUtils customAuthorityUtils;
     private final UserService userService;
     private final UserDetailService userDetailService;
+    private final JwtTokenizer jwtTokenizer;
     public static final String URL = "https://localhost:8080";
 
-//    public SecurityConfiguration(JwtTokenizer jwtTokenizer, UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserDetailService userDetailService, UserService userService) {
-//        this.jwtTokenizer = jwtTokenizer;
-//        this.userAuthenticationSuccessHandler = userAuthenticationSuccessHandler;
-//        this.userAuthenticationFailureHandler = userAuthenticationFailureHandler;
-//        this.customAuthorityUtils = customAuthorityUtils;
-//        this.userDetailService = userDetailService;
-//        this.userService = userService;
-//    }
-
-
-    public SecurityConfiguration(JwtTokenizer jwtTokenizer, UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserService userService, @Lazy UserDetailService userDetailService) {
-        this.jwtTokenizer = jwtTokenizer;
+    public SecurityConfiguration(UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserService userService, @Lazy UserDetailService userDetailService, JwtTokenizer jwtTokenizer) {
         this.userAuthenticationSuccessHandler = userAuthenticationSuccessHandler;
         this.userAuthenticationFailureHandler = userAuthenticationFailureHandler;
         this.customAuthorityUtils = customAuthorityUtils;
         this.userService = userService;
         this.userDetailService = userDetailService;
+        this.jwtTokenizer = jwtTokenizer;
     }
 
     @Bean
@@ -86,9 +75,8 @@ public class SecurityConfiguration {
                 .apply(new CustomFilterConfigurer())
                 .and()
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
-                .oauth2Login(oauth2 -> oauth2.successHandler(new OAuth2UserSuccessHandler(
-                        jwtTokenizer, userService
-                )));
+                .oauth2Login(oauth2 -> oauth2.successHandler(new OAuth2UserSuccessHandler(userService, jwtTokenizer))
+        );
         return http.build();
     }
 
@@ -113,9 +101,9 @@ public class SecurityConfiguration {
         corsConfiguration.setAllowCredentials(true); // 셋쿠키 사용하려면 클라이언트쪽에서도, 백엔드 쪽에서도 credential을 포함하도록 설정해야 함.
 
         corsConfiguration.addExposedHeader("Authorization");
-        corsConfiguration.addExposedHeader("Location");
         corsConfiguration.addExposedHeader("Refresh");
         corsConfiguration.addExposedHeader("Set-Cookie");
+        corsConfiguration.addExposedHeader("Location");
 
         corsConfiguration.addAllowedHeader("*");
 
@@ -150,7 +138,7 @@ public class SecurityConfiguration {
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(userAuthenticationSuccessHandler);
             jwtAuthenticationFilter.setAuthenticationFailureHandler(userAuthenticationFailureHandler);
 
-            JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtTokenizer, customAuthorityUtils, userDetailService);
+            JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(customAuthorityUtils, userDetailService, jwtTokenizer);
 
 
             builder.addFilter(corsFilter())
@@ -158,11 +146,6 @@ public class SecurityConfiguration {
                    .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class)
                    .addFilterAfter(jwtVerificationFilter, OAuth2LoginAuthenticationFilter.class);
 
-            /*
-            * AuthenticationFilter 추가하면 Controller로 요청이 안넘어감
-            * SuccessHandler까지는 잘 실행됨.
-            *
-            * */
         }
     }
 
