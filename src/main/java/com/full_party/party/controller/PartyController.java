@@ -123,7 +123,7 @@ public class PartyController {
         partyMembers.stream()
                 .forEach(partyMember -> notificationService.createNotification(
                         userService.findUser(partyMember.getId()),
-                        null,
+                        party,
                         NotificationInfo.DISMISS,
                         null
                 )
@@ -268,30 +268,26 @@ public class PartyController {
     public ResponseEntity patchParty(@PathVariable("party-id") Long partyId,
                                      @RequestBody PartyRequestDto partyRequestDto) {
 
-        System.out.println("partyRequestDto.getId() = " + partyRequestDto.getId());
-        System.out.println("partyRequestDto.getName() = " + partyRequestDto.getName());
-        System.out.println("partyRequestDto.getImage() = " + partyRequestDto.getImage());
-        System.out.println("partyRequestDto.getContent() = " + partyRequestDto.getContent());
-        System.out.println("partyRequestDto.getStartDate() = " + partyRequestDto.getStartDate());
-        System.out.println("partyRequestDto.getEndDate() = " + partyRequestDto.getEndDate());
-        System.out.println("partyRequestDto.getIsOnline() = " + partyRequestDto.getIsOnline());
-        System.out.println("partyRequestDto.getPrivateLink() = " + partyRequestDto.getPrivateLink());
-        System.out.println("partyRequestDto.getRegion() = " + partyRequestDto.getRegion());
-        System.out.println("partyRequestDto.getLocation() = " + partyRequestDto.getLocation());
-        System.out.println("partyRequestDto.getMemberLimit() = " + partyRequestDto.getMemberLimit());
-        System.out.println("partyRequestDto.getCoordinates() = " + partyRequestDto.getCoordinates());
-        System.out.println("partyRequestDto.getPartyState() = " + partyRequestDto.getPartyState());
-        partyRequestDto.getTags().stream().forEach(tag -> System.out.println(tag));
-
-
-
-
-
-
+//        System.out.println("partyRequestDto.getId() = " + partyRequestDto.getId());
+//        System.out.println("partyRequestDto.getName() = " + partyRequestDto.getName());
+//        System.out.println("partyRequestDto.getImage() = " + partyRequestDto.getImage());
+//        System.out.println("partyRequestDto.getContent() = " + partyRequestDto.getContent());
+//        System.out.println("partyRequestDto.getStartDate() = " + partyRequestDto.getStartDate());
+//        System.out.println("partyRequestDto.getEndDate() = " + partyRequestDto.getEndDate());
+//        System.out.println("partyRequestDto.getIsOnline() = " + partyRequestDto.getIsOnline());
+//        System.out.println("partyRequestDto.getPrivateLink() = " + partyRequestDto.getPrivateLink());
+//        System.out.println("partyRequestDto.getRegion() = " + partyRequestDto.getRegion());
+//        System.out.println("partyRequestDto.getLocation() = " + partyRequestDto.getLocation());
+//        System.out.println("partyRequestDto.getMemberLimit() = " + partyRequestDto.getMemberLimit());
+//        System.out.println("partyRequestDto.getCoordinates() = " + partyRequestDto.getCoordinates());
+//        System.out.println("partyRequestDto.getPartyState() = " + partyRequestDto.getPartyState());
+//        partyRequestDto.getTags().stream().forEach(tag -> System.out.println(tag));
 
         partyRequestDto.setId(partyId);
 
         Party party = partyService.updateParty(partyMapper.partyRequestDtoToParty(partyRequestDto));
+
+        System.out.println("❤️" + party.getName());
 
         return new ResponseEntity(partyMapper.partyToPartyResponseDto(party), HttpStatus.OK);
     }

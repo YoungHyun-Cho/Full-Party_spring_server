@@ -44,49 +44,80 @@ public class PartyService {
         return partyRepository.save(party);
     }
 
-    public List<Party> findLeadingParty(Long userId) {
-//        return partyRepository.findByUserId(userId).stream()
-//                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
+//    private List<Party> filterDismissedParty(List<Party> parties) {
+//        return parties.stream()
+//                .filter(party -> party.getPartyState() != PartyState.DISMISSED)
 //                .collect(Collectors.toList());
+//    }
+
+    // 역할에 따른 조회 - 파티장인 파티 검색
+    private List<Party> findLeadingParty(Long userId) {
         return partyRepository.findByUserId(userId);
     }
 
-    public List<Party> findProgressingLeadingParty(Long userId) {
-        return findLeadingParty(userId).stream()
-                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
-                .collect(Collectors.toList());
-    }
-
-    public List<Party> findParticipatingParty(Long userId) {
+    // 역할에 따른 조회 - 파티원인 파티 검색
+    private List<Party> findParticipatingParty(Long userId) {
         return userPartyRepository.findByUserId(userId).stream()
                 .map(userParty -> findParty(userParty.getParty().getId()))
                 .collect(Collectors.toList());
     }
 
-    public List<Party> findProgressingParticipatingParty(Long userId) {
-        return findParticipatingParty(userId).stream()
-                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
+    private List<Party> filterProgressingParty(List<Party> parties) {
+        return parties.stream()
+                .filter(party -> party.getPartyState() == PartyState.RECRUITING || party.getPartyState() == PartyState.FULL_PARTY)
                 .collect(Collectors.toList());
     }
 
-    public List<Party> findProgressingMyParty(Long userId) {
-        return findMyParties(userId).stream()
-                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
-                .collect(Collectors.toList());
-    }
-
-    public List<Party> findCompletedMyParty(Long userId) {
-        return findMyParties(userId).stream()
+    private List<Party> filterCompletedParty(List<Party> parties) {
+        return parties.stream()
                 .filter(party -> party.getPartyState() == PartyState.COMPLETED)
                 .collect(Collectors.toList());
     }
 
-    // 내가 파티장인 파티와 파티원인 파티를 모두 취합해서 리턴
-    public List<Party> findMyParties(Long userId) {
-        return Stream.of(findLeadingParty(userId), findParticipatingParty(userId))
-                .flatMap(el -> el.stream())
-                .collect(Collectors.toList());
+    public List<Party> findProgressingLeadingParty(Long userId) {
+//        return findLeadingParty(userId).stream()
+//                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
+//                .collect(Collectors.toList());
+        return filterProgressingParty(findLeadingParty(userId));
     }
+
+    public List<Party> findProgressingParticipatingParty(Long userId) {
+//        return findParticipatingParty(userId).stream()
+//                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
+//                .collect(Collectors.toList());
+        return filterProgressingParty(findParticipatingParty(userId));
+    }
+
+    public List<Party> findProgressingMyParty(Long userId) {
+//        return findMyParties(userId).stream()
+//                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
+//                .collect(Collectors.toList());
+
+        return filterProgressingParty(
+                Stream
+                    .concat(findLeadingParty(userId).stream(), findParticipatingParty(userId).stream())
+                    .collect(Collectors.toList())
+        );
+    }
+
+    public List<Party> findCompletedMyParty(Long userId) {
+//        return findMyParties(userId).stream()
+//                .filter(party -> party.getPartyState() == PartyState.COMPLETED)
+//                .collect(Collectors.toList());
+
+        return filterCompletedParty(
+                Stream
+                    .concat(findLeadingParty(userId).stream(), findParticipatingParty(userId).stream())
+                    .collect(Collectors.toList())
+        );
+    }
+
+    // 내가 파티장인 파티와 파티원인 파티를 모두 취합해서 리턴
+//    public List<Party> findMyParties(Long userId) {
+//        return Stream.of(findLeadingParty(userId), findParticipatingParty(userId))
+//                .flatMap(el -> el.stream())
+//                .collect(Collectors.toList());
+//    }
 
     public List<Party> findLocalParties(Long userId, String region) {
 
@@ -190,7 +221,12 @@ public class PartyService {
     }
 
     public Party updateParty(Party party) {
+
+        System.out.println("❤️" + party.getId());
+
         Party foundParty = findVerifiedParty(party.getId());
+
+        System.out.println("❤️" + foundParty.getId());
 
 //        foundParty.setPartyState(party.getPartyState());
 //        foundParty.setMemberLimit(party.getMemberLimit());
@@ -260,10 +296,14 @@ public class PartyService {
         return findVerifiedWaiter(userId, partyId);
     }
 
-    private List<User> findWaiters(Party party) {
+    private List<Party.PartyMember> findWaiters(Party party) {
 
         return waiterRepository.findByPartyId(party.getId()).stream()
-                .map(waiter -> userService.findUser(waiter.getUser().getId()))
+                .map(waiter -> {
+                    Party.PartyMember partyMember = new Party.PartyMember(userService.findUser(waiter.getUser().getId()));
+                    partyMember.setMessage(waiter.getMessage());
+                    return partyMember;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -323,7 +363,9 @@ public class PartyService {
     }
 
     public void deleteParty(Party party) {
-        partyRepository.delete(party);
+//        partyRepository.delete(party);
+        party.setPartyState(PartyState.DISMISSED);
+        partyRepository.save(party);
     }
 
     public void checkIsReviewed(User user, Party party, Integer resultsLength) {

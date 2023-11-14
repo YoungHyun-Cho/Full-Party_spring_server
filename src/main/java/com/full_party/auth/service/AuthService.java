@@ -3,7 +3,9 @@ package com.full_party.auth.service;
 import com.full_party.auth.jwt.JwtTokenizer;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,7 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class AuthService {
@@ -30,6 +33,11 @@ public class AuthService {
         // refresh token 확인하고,
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
         Map<String, Object> claims = jwtTokenizer.getClaims(refreshToken, base64EncodedSecretKey).getBody();
+
+        Set<Map.Entry<String, Object>> entrySet = claims.entrySet();
+        entrySet.stream().forEach(entry -> System.out.println("🟦 " + entry.getKey() + " : " + entry.getValue()));
+
+//        Jws<Claims> claims = jwtTokenizer.getClaims(refreshToken, base64EncodedSecretKey);
 
         // 맞으면 token 재발급
         User user = userService.findUser((String) claims.get("sub"));
@@ -66,7 +74,7 @@ public class AuthService {
         claims.put("username", user.getEmail());
 
         String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getTokenExpiration();
+        Date expiration = jwtTokenizer.getAccessTokenExpiration();
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
 
         String accessToken = jwtTokenizer.generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
@@ -77,7 +85,7 @@ public class AuthService {
     private String delegateRefreshToken(User user) {
 
         String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getTokenExpiration();
+        Date expiration = jwtTokenizer.getRefreshTokenExpiration();
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
 
         String refreshToken = jwtTokenizer.generateRefreshToken(subject, expiration, base64EncodedSecretKey);

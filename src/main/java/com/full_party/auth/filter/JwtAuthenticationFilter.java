@@ -125,7 +125,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         claims.put("username", user.getEmail());
 
         String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getTokenExpiration();
+        Date expiration = jwtTokenizer.getAccessTokenExpiration();
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
 
         String accessToken = jwtTokenizer.generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
@@ -136,7 +136,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private String delegateRefreshToken(User user) {
 
         String subject = user.getEmail();
-        Date expiration = jwtTokenizer.getTokenExpiration();
+        Date expiration = jwtTokenizer.getRefreshTokenExpiration();
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
 
         String refreshToken = jwtTokenizer.generateRefreshToken(subject, expiration, base64EncodedSecretKey);

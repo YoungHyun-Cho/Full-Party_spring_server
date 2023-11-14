@@ -90,7 +90,8 @@ public class AuthController {
         *
         * */
 
-        System.out.println("🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥 AuthController refresh");
+        System.out.println("🟥🟥🟥 AuthController refresh");
+        System.out.println("🟥🟥🟥 Refresh : " + refreshToken);
 
         // 액세스토큰 재발급
 //        String accessToken = authService.reIssueToken(refreshToken);

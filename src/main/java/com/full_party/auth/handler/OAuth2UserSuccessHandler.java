@@ -108,7 +108,7 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         claims.put("username", username);
 
         String subject = username;
-        Date expiration = jwtTokenizer.getTokenExpiration();
+        Date expiration = jwtTokenizer.getAccessTokenExpiration();
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
 
         String accessToken = jwtTokenizer.generateAccessToken(claims, subject, expiration, base64EncodedSecretKey);
@@ -118,7 +118,7 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
     private String delegateRefreshToken(String username) {
         String subject = username;
-        Date expiration = jwtTokenizer.getTokenExpiration();
+        Date expiration = jwtTokenizer.getRefreshTokenExpiration();
         String base64EncodedSecretKey = jwtTokenizer.encodeBase64SecretKey(jwtTokenizer.getSecretKey());
 
         String refreshToken = jwtTokenizer.generateRefreshToken(subject, expiration, base64EncodedSecretKey);
