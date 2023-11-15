@@ -3,6 +3,7 @@ package com.full_party.heart.controller;
 import com.full_party.heart.entity.Heart;
 import com.full_party.heart.mapper.HeartMapper;
 import com.full_party.heart.service.HeartService;
+import com.full_party.notification.service.NotificationService;
 import com.full_party.party.dto.PartyResponseDto;
 import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
@@ -24,13 +25,15 @@ public class HeartController {
     private final HeartService heartService;
     private final UserService userService;
     private final PartyService partyService;
+    private final NotificationService notificationService;
     private final HeartMapper heartMapper;
     private final PartyMapper partyMapper;
 
-    public HeartController(HeartService heartService, UserService userService, PartyService partyService, HeartMapper heartMapper, PartyMapper partyMapper) {
+    public HeartController(HeartService heartService, UserService userService, PartyService partyService, NotificationService notificationService, HeartMapper heartMapper, PartyMapper partyMapper) {
         this.heartService = heartService;
         this.userService = userService;
         this.partyService = partyService;
+        this.notificationService = notificationService;
         this.heartMapper = heartMapper;
         this.partyMapper = partyMapper;
     }
@@ -58,7 +61,12 @@ public class HeartController {
                 .map(party -> partyMapper.partyToPartyResponseDto(party))
                 .collect(Collectors.toList());
 
-        return new ResponseEntity(heartMapper.partyListToHeartResponseDto(parties), HttpStatus.OK);
+        return new ResponseEntity(
+                heartMapper.partyListToHeartResponseDto(
+                        notificationService.checkNotificationBadge(user.getId()), parties
+                ),
+                HttpStatus.OK
+        );
     }
 
     @DeleteMapping("/{party-id}")

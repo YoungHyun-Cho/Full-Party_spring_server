@@ -1,5 +1,6 @@
 package com.full_party.search.controller;
 
+import com.full_party.notification.service.NotificationService;
 import com.full_party.party.dto.PartyResponseDto;
 import com.full_party.party.entity.Party;
 import com.full_party.party.mapper.PartyMapper;
@@ -27,13 +28,15 @@ public class SearchController {
     private final PartyService partyService;
     private final TagService tagService;
     private final UserService userService;
+    private final NotificationService notificationService;
     private final PartyMapper partyMapper;
     private final SearchMapper searchMapper;
 
-    public SearchController(PartyService partyService, TagService tagService, UserService userService, PartyMapper partyMapper, SearchMapper searchMapper) {
+    public SearchController(PartyService partyService, TagService tagService, UserService userService, NotificationService notificationService, PartyMapper partyMapper, SearchMapper searchMapper) {
         this.partyService = partyService;
         this.tagService = tagService;
         this.userService = userService;
+        this.notificationService = notificationService;
         this.partyMapper = partyMapper;
         this.searchMapper = searchMapper;
     }
@@ -49,12 +52,18 @@ public class SearchController {
                 .map(party -> partyMapper.partyToPartyResponseDto(party))
                 .collect(Collectors.toList());
 
-        return new ResponseEntity(searchMapper.mapToSearchResponseDto(partyResponseDtos), HttpStatus.OK);
+        return new ResponseEntity(
+                searchMapper.mapToSearchResponseDto(
+                        notificationService.checkNotificationBadge(user.getId()),
+                        partyResponseDtos
+                ),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/tag")
-    public ResponseEntity searchByTag(@RequestParam("region") String region,
-                                      @RequestParam("value") String tagValue,
+    public ResponseEntity searchByTag(@RequestParam("value") String tagValue,
+                                      @RequestParam("region") String region,
                                       @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = userService.findUser(userDetails.getUsername());
@@ -63,7 +72,13 @@ public class SearchController {
                 .map(party -> partyMapper.partyToPartyResponseDto(party))
                 .collect(Collectors.toList());
 
-        return new ResponseEntity(searchMapper.mapToSearchResponseDto(partyResponseDtos), HttpStatus.OK);
+        return new ResponseEntity(
+                searchMapper.mapToSearchResponseDto(
+                    notificationService.checkNotificationBadge(user.getId()),
+                    partyResponseDtos
+                ),
+                HttpStatus.OK
+        );
     }
 }
 

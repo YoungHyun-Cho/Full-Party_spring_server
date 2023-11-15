@@ -1,5 +1,6 @@
 package com.full_party.user.dto;
 
+import com.full_party.dto.CommonInformationDto;
 import com.full_party.party.dto.PartyResponseDto;
 import com.full_party.values.SignUpType;
 import lombok.AllArgsConstructor;
@@ -13,9 +14,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserBasicResponseDto {
+public class UserBasicResponseDto extends CommonInformationDto {
 
     private Long id;
     private String email;
@@ -24,6 +23,7 @@ public class UserBasicResponseDto {
     private String profileImage;
     private Integer exp;
     private Integer level;
+    private Integer levelUpExp;
     private SignUpType signUpType;
     private Map<String, List<PartyResponseDto>> relatedParties;
 }

@@ -1,14 +1,13 @@
 package com.full_party.user.service;
 
-import com.full_party.auth.utils.CustomAuthorityUtils;
 import com.full_party.exception.BusinessLogicException;
 import com.full_party.exception.ExceptionCode;
 import com.full_party.user.entity.User;
 import com.full_party.user.repository.UserRepository;
+import com.full_party.values.Level;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,11 +39,18 @@ public class UserService {
     }
 
     public User findUser(Long userId) {
-        return findVerifiedUser(userId);
+        return setTransientValues(findVerifiedUser(userId));
     }
 
     public User findUser(String email) {
-        return findVerifiedUser(email);
+        return setTransientValues(findVerifiedUser(email));
+    }
+
+    private User setTransientValues(User user) {
+
+        user.setLevelUpExp(Level.getLevel(user.getLevel()).getLevelUpExp());
+
+        return user;
     }
 
     public User updateUser(User user) {
@@ -75,11 +81,17 @@ public class UserService {
         if (user.isPresent()) throw new BusinessLogicException(ExceptionCode.USER_EXISTS);
     }
 
-    public User updateExp(Long userId, Integer exp) {
+    public Level.Result updateExp(Long userId, Integer exp) {
+
         User foundUser = findUser(userId);
 
-        foundUser.setExp(foundUser.getExp() + exp);
+        Level.Result result = Level.calculateLevel(foundUser.getExp() + exp, foundUser.getLevel());
 
-        return userRepository.save(foundUser);
+        foundUser.setLevel(result.getLevel());
+        foundUser.setExp(result.getExp());
+
+        userRepository.save(foundUser);
+
+        return result;
     }
 }

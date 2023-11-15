@@ -61,9 +61,9 @@ public interface PartyMapper {
                 .collect(Collectors.toList());
     }
 
-    default PartyListResponseDto mapToPartyListResponseDto(List<PartyResponseDto> myParties, List<PartyResponseDto> localParties) {
+    default PartyListResponseDto mapToPartyListResponseDto(List<PartyResponseDto> myParties, List<PartyResponseDto> localParties, Boolean notificationBadge) {
 
-        return new PartyListResponseDto(myParties, localParties);
+        return new PartyListResponseDto(notificationBadge, myParties, localParties);
     }
 
     default List<PartyResponseDto> mapEachPartyToPartyResponseDto(List<Party> partyList) {

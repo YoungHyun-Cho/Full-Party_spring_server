@@ -9,8 +9,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface SearchMapper {
 
-    default SearchResponseDto mapToSearchResponseDto(List<PartyResponseDto> partyResponseDtos) {
+    default SearchResponseDto mapToSearchResponseDto(Boolean notificationBadge, List<PartyResponseDto> partyResponseDtos) {
 
-        return new SearchResponseDto(partyResponseDtos);
+        return new SearchResponseDto(notificationBadge, partyResponseDtos);
     }
 }

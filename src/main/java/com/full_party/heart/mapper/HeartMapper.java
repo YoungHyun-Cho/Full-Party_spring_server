@@ -16,7 +16,7 @@ public interface HeartMapper {
 //    HeartResponseDto heartListToHeartResponseDto(List<Heart> heartList);
 
 //    @Named("heartListToDto")
-    default HeartResponseDto partyListToHeartResponseDto(List<PartyResponseDto> partyList) {
-        return new HeartResponseDto(partyList);
+    default HeartResponseDto partyListToHeartResponseDto(Boolean notificationBadge, List<PartyResponseDto> partyList) {
+        return new HeartResponseDto(notificationBadge, partyList);
     }
 }

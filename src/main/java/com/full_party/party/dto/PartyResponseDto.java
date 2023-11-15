@@ -1,19 +1,23 @@
 package com.full_party.party.dto;
 
 import com.full_party.comment.dto.CommentReplyDto;
+import com.full_party.dto.CommonInformationDto;
 import com.full_party.user.dto.UserBasicResponseDto;
 import com.full_party.values.Coordinates;
 import com.full_party.values.PartyState;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
-public class PartyResponseDto {
+@NoArgsConstructor
+public class PartyResponseDto extends CommonInformationDto {
     private Long id;
     private Long userId;
     private String name;
@@ -26,6 +30,7 @@ public class PartyResponseDto {
     private Integer heartCount;
     private Boolean isOnline;
     private Boolean isHeart;
+    private Boolean isReviewed;
     private Date startDate;
     private Date endDate;
     private Coordinates coordinates;

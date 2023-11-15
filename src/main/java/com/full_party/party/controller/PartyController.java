@@ -6,7 +6,6 @@ import com.full_party.comment.mapper.CommentMapper;
 import com.full_party.comment.service.CommentService;
 import com.full_party.exception.BusinessLogicException;
 import com.full_party.exception.ExceptionCode;
-import com.full_party.notification.entity.Notification;
 import com.full_party.notification.service.NotificationService;
 import com.full_party.party.dto.*;
 import com.full_party.party.entity.Party;
@@ -16,6 +15,7 @@ import com.full_party.tag.service.TagService;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.util.Utility;
+import com.full_party.values.Level;
 import com.full_party.values.NotificationInfo;
 import com.full_party.values.PartyState;
 import org.springframework.http.HttpStatus;
@@ -86,7 +86,12 @@ public class PartyController {
         List<PartyResponseDto> myParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findProgressingMyParty(userId));
         List<PartyResponseDto> localParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findLocalParties(userId, region));
 
-        return new ResponseEntity(partyMapper.mapToPartyListResponseDto(myParties, localParties), HttpStatus.OK);
+        return new ResponseEntity(
+                partyMapper.mapToPartyListResponseDto(
+                        myParties, localParties, notificationService.checkNotificationBadge(userId)
+                ),
+                HttpStatus.OK
+        );
     }
 
     // 공통 : 파티 정보 조회
@@ -96,6 +101,7 @@ public class PartyController {
 
         User user = userService.findUser(userDetails.getUsername());
         Party party = partyService.findParty(user.getId(), partyId);
+
         PartyResponseDto partyResponseDto = partyMapper.partyToPartyResponseDto(party);
 
         commentService.findComments(partyId).stream()
@@ -107,6 +113,8 @@ public class PartyController {
                     partyResponseDto.getComments().add(new CommentReplyDto(commentResponseDto, replies));
                 }
         );
+
+        partyResponseDto.setNotificationBadge(notificationService.checkNotificationBadge(user.getId()));
 
         return new ResponseEntity(partyResponseDto, HttpStatus.OK);
     }
@@ -338,12 +346,21 @@ public class PartyController {
                                      @AuthenticationPrincipal UserDetails userDetails,
                                      @RequestBody PartyReviewDto partyReviewDto) {
 
-        // 파티장이면 userParty에 isReviewed 체크 안해도 됨. 파티원이면 해야 함.
-
         partyReviewDto.getResults().stream()
-                .forEach(result -> userService.updateExp(result.getUserId(), result.getExp()));
+                .forEach(reviewResult -> {
+                    Level.Result calculationResult = userService.updateExp(reviewResult.getUserId(), reviewResult.getExp());
+                    if (calculationResult.getNotificationInfo() != null) {
+                        notificationService.createNotification(
+                                userService.findUser(reviewResult.getUserId()),
+                                partyService.findParty(partyId),
+                                calculationResult.getNotificationInfo(),
+                                null
+                        );
+                    }
+                }
+        );
 
-        partyService.checkIsReviewed(
+        partyService.changeIsReviewed(
                 userService.findUser(userDetails.getUsername()),
                 partyService.findParty(partyId),
                 partyReviewDto.getResults().size()

@@ -92,6 +92,9 @@ public class User extends Auditable {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 
+    @Transient
+    private Integer levelUpExp;
+
     public User(User previousUser, User modifiedUser) {
         this.id = previousUser.id;
         this.email = previousUser.email;

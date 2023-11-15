@@ -18,6 +18,7 @@ public class NotificationDto {
     private String type;
     private String label;
     private Long partyId;
+    private Boolean isRead;
     private LocalDateTime createdAt;
 }
 

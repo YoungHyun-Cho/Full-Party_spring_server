@@ -22,10 +22,18 @@ public class NotificationService {
         return notificationRepository.save(new Notification(user, party, notificationInfo, subjectId));
     }
 
-    public Boolean checkIsUnread(Long userId) {
+    public Boolean checkNotificationBadge(Long userId) {
 
         return findAll(userId).stream()
                 .anyMatch(notification -> !notification.getIsRead());
+    }
+
+    public void changeIsRead(List<Notification> notifications) {
+        notifications.stream()
+                .forEach(notification -> {
+                    notification.setIsRead(true);
+                    notificationRepository.save(notification);
+                });
     }
 
     public List<Notification> findAll(Long userId) {

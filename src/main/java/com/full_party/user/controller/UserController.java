@@ -3,6 +3,7 @@ package com.full_party.user.controller;
 import com.full_party.auth.dto.AuthDto;
 import com.full_party.auth.userdetails.UserDetail;
 import com.full_party.auth.userdetails.UserDetailService;
+import com.full_party.notification.service.NotificationService;
 import com.full_party.party.dto.PartyResponseDto;
 import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
@@ -37,12 +38,14 @@ public class UserController {
     private final static String USER_DEFAULT_URL = "/v1/users";
     private final UserService userService;
     private final PartyService partyService;
+    private final NotificationService notificationService;
     private final UserMapper userMapper;
     private final PartyMapper partyMapper;
 
-    public UserController(UserService userService, PartyService partyService, UserMapper userMapper, PartyMapper partyMapper) {
+    public UserController(UserService userService, PartyService partyService, NotificationService notificationService, UserMapper userMapper, PartyMapper partyMapper) {
         this.userService = userService;
         this.partyService = partyService;
+        this.notificationService = notificationService;
         this.userMapper = userMapper;
         this.partyMapper = partyMapper;
     }
@@ -62,14 +65,6 @@ public class UserController {
         return ResponseEntity.created(uri).build();
     }
 
-//    @GetMapping
-//    public ResponseEntity getInitialUserInfo(@AuthenticationPrincipal UserDetails userDetail) {
-//
-//        User user = userService.findUser(userDetail.getUsername());
-//
-//        return new ResponseEntity(userMapper.userToUserBasicResponseDto(user), HttpStatus.OK);
-//    }
-
     // 마이페이지 정보 제공
     @GetMapping("/{user-id}")
     public ResponseEntity getUserInfo(@PathVariable("user-id") Long userId) {
@@ -83,6 +78,7 @@ public class UserController {
         );
 
         userBasicResponseDto.setRelatedParties(relatedParties);
+        userBasicResponseDto.setNotificationBadge(notificationService.checkNotificationBadge(userId));
 
         return new ResponseEntity(userBasicResponseDto, HttpStatus.OK);
     }

@@ -43,7 +43,7 @@ public class NotificationMapper {
 
         return new NotificationDto(
                 subject, content, notificationInfo.getType().toString(), notificationInfo.getLabel(),
-                notification.getParty().getId(), notification.getCreatedAt()
+                notification.getParty().getId(), notification.getIsRead(), notification.getCreatedAt()
         );
     }
 

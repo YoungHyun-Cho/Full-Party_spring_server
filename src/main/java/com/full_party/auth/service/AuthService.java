@@ -6,6 +6,7 @@ import com.full_party.user.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class AuthService {
         this.jwtTokenizer = jwtTokenizer;
     }
 
-    public Map<String, String> reIssueToken(String refreshToken) throws ExpiredJwtException {
+    public Map<String, String> reIssueToken(String refreshToken) throws ExpiredJwtException, MalformedJwtException {
 
         Map<String, String> tokenMap = new HashMap<>();
 

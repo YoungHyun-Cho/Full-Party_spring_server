@@ -7,6 +7,7 @@ import com.full_party.user.service.UserService;
 import com.full_party.util.Utility;
 import com.full_party.values.SignUpType;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.parameters.P;
@@ -99,7 +100,7 @@ public class AuthController {
 
             return new ResponseEntity(headers, HttpStatus.OK);
         }
-        catch (ExpiredJwtException e) {
+        catch (ExpiredJwtException | MalformedJwtException e) {
             System.out.println("❌ " + e.getCause());
             System.out.println("❌ " + e.getMessage());
             return new ResponseEntity(HttpStatus.UNAUTHORIZED);

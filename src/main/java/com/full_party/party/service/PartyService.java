@@ -167,12 +167,15 @@ public class PartyService {
         Party foundParty = findVerifiedParty(partyId);
 
         return setTransientValues(foundParty);
-//        foundParty.setMemberList(findPartyMembers(foundParty));
-//        foundParty.setWaiterList(findWaiters(foundParty));
-//        foundParty.setHeartCount(heartService.findHearts(foundParty).size());
-//
-//        return foundParty;
     }
+
+    public Party findParty(Long userId, Long partyId) {
+
+        Party foundParty = findVerifiedParty(partyId);
+
+        return setTransientValues(foundParty, userId);
+    }
+
 
     private Party setTransientValues(Party party) {
 
@@ -190,21 +193,9 @@ public class PartyService {
         if (heartService.findHeart(userId, party.getId()) != null) party.setIsHeart(true);
         else party.setIsHeart(false);
 
+        party.setIsReviewed(checkIsReviewed(userService.findUser(userId), party));
+
         return party;
-    }
-
-    public Party findParty(Long userId, Long partyId) {
-
-        Party foundParty = findParty(partyId);
-
-        return setTransientValues(foundParty, userId);
-
-//        Heart heart = heartService.findHeart(userId, partyId);
-//
-//        if (heart != null) foundParty.setIsHeart(true);
-//        else foundParty.setIsHeart(false);
-//
-//        return foundParty;
     }
 
     public List<Party> findPartiesByTag(String tagValue, Long userId, String region) {
@@ -368,19 +359,37 @@ public class PartyService {
         partyRepository.save(party);
     }
 
-    public void checkIsReviewed(User user, Party party, Integer resultsLength) {
+    public void changeIsReviewed(User user, Party party, Integer resultsLength) {
 
         // 파티장은 userParty X -> 파티원만 체크
         if (party.getUser().getId() != user.getId()) {
 
-            List<UserParty> userParties = userPartyRepository.findByPartyId(party.getId());
+//            List<UserParty> userParties = userPartyRepository.findByPartyId(party.getId());
 
             // 자신을 제외한 파티원을 모두 리뷰했는지 체크
-            if (userPartyRepository.findByPartyId(party.getId()).size() - 1 == resultsLength) {
+            if (userPartyRepository.findByPartyId(party.getId()).size() == resultsLength) {
                 UserParty foundUserParty = findUserParty(user.getId(), party.getId());
                 foundUserParty.setIsReviewed(true);
                 userPartyRepository.save(foundUserParty);
             }
+        }
+    }
+
+    public Boolean checkIsReviewed(User user, Party party) {
+
+        // 파티장의 경우, 퀘스트 완료 전에 반드시 리뷰가 선행되어야만 함.
+        // 즉 파티 상태가 COMPLETED -> 파티장은 이미 리뷰를 진행한 상태이므로 true 리턴
+        if (party.getPartyState() == PartyState.COMPLETED && party.getUser().getId() == user.getId()) return true;
+
+        try {
+
+            // 파티원이 리뷰를 진행했는지 확인
+            return findUserParty(user.getId(), party.getId()).getIsReviewed();
+        }
+        catch (BusinessLogicException e) {
+
+            // UserParty를 찾을 수 없다면 파티원이 아님 -> false 리턴
+            return false;
         }
     }
 

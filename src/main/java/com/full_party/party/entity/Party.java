@@ -93,6 +93,9 @@ public class Party extends Auditable {
     private Boolean isHeart; // 임시 값 저장을 위한 필드 -> transient
 
     @Transient
+    private Boolean isReviewed;
+
+    @Transient
     private Integer heartCount;
 
     @Transient
