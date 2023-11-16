@@ -9,6 +9,7 @@ import com.full_party.notification.entity.Notification;
 import com.full_party.party.entity.Party;
 import com.full_party.party.entity.UserParty;
 import com.full_party.party.entity.Waiter;
+import com.full_party.values.Coordinates;
 import com.full_party.values.Gender;
 import com.full_party.values.SignUpType;
 import lombok.AllArgsConstructor;
@@ -85,6 +86,10 @@ public class User extends Auditable {
     @Column(nullable = false)
     private Integer level;
 
+    @Embedded
+    @Column(nullable = false)
+    private Coordinates coordinates;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SignUpType signUpType;
@@ -108,6 +113,7 @@ public class User extends Auditable {
         this.gender = modifiedUser.gender == null ? previousUser.gender : modifiedUser.gender;
         this.mobile = modifiedUser.mobile == null ? previousUser.mobile : modifiedUser.mobile;
         this.address = modifiedUser.address == null ? previousUser.address : modifiedUser.address;
+        this.coordinates = modifiedUser.coordinates == null ? previousUser.coordinates : modifiedUser.coordinates;
     }
 
     public User(User newUser) {
@@ -120,6 +126,7 @@ public class User extends Auditable {
         this.gender = newUser.gender;
         this.mobile = newUser.mobile;
         this.address = newUser.address;
+        this.coordinates = newUser.coordinates;
         this.exp = 0;
         this.level = 1;
         this.roles = newUser.roles;
@@ -138,6 +145,7 @@ public class User extends Auditable {
         this.birth = new Date();
         this.exp = 0;
         this.level = 1;
+        this.coordinates = new Coordinates(37.496562, 127.024761);
         this.gender = Gender.NOT_SELECTED;
         this.mobile = signUpType.getType();
         this.signUpType = signUpType;

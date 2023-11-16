@@ -1,5 +1,6 @@
 package com.full_party.user.dto;
 
+import com.full_party.values.Coordinates;
 import com.full_party.values.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +20,5 @@ public class UserPostDto {
     private Gender gender;
     private String address;
     private String mobile;
+    private Coordinates coordinates;
 }

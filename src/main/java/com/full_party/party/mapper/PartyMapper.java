@@ -5,6 +5,7 @@ import com.full_party.party.entity.Party;
 import com.full_party.party.entity.Waiter;
 import com.full_party.tag.entity.Tag;
 import com.full_party.user.entity.User;
+import com.full_party.values.Coordinates;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -61,9 +62,9 @@ public interface PartyMapper {
                 .collect(Collectors.toList());
     }
 
-    default PartyListResponseDto mapToPartyListResponseDto(List<PartyResponseDto> myParties, List<PartyResponseDto> localParties, Boolean notificationBadge) {
+    default PartyListResponseDto mapToPartyListResponseDto(List<PartyResponseDto> myParties, List<PartyResponseDto> localParties, Coordinates coordinates, Boolean notificationBadge) {
 
-        return new PartyListResponseDto(notificationBadge, myParties, localParties);
+        return new PartyListResponseDto(notificationBadge, myParties, localParties, coordinates);
     }
 
     default List<PartyResponseDto> mapEachPartyToPartyResponseDto(List<Party> partyList) {

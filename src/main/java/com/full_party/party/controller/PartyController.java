@@ -15,6 +15,7 @@ import com.full_party.tag.service.TagService;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.util.Utility;
+import com.full_party.values.Coordinates;
 import com.full_party.values.Level;
 import com.full_party.values.NotificationInfo;
 import com.full_party.values.PartyState;
@@ -82,13 +83,14 @@ public class PartyController {
     public ResponseEntity getRelatedPartyList(@RequestParam(name = "region") String region,
                                               @AuthenticationPrincipal UserDetails userDetails) {
 
-        Long userId = userService.findUser(userDetails.getUsername()).getId();
-        List<PartyResponseDto> myParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findProgressingMyParty(userId));
-        List<PartyResponseDto> localParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findLocalParties(userId, region));
+        User user = userService.findUser(userDetails.getUsername());
+        List<PartyResponseDto> myParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findProgressingMyParty(user.getId()));
+        List<PartyResponseDto> localParties = partyMapper.mapEachPartyToPartyResponseDto(partyService.findLocalParties(user.getId(), region));
 
         return new ResponseEntity(
                 partyMapper.mapToPartyListResponseDto(
-                        myParties, localParties, notificationService.checkNotificationBadge(userId)
+                        myParties, localParties, user.getCoordinates(),
+                        notificationService.checkNotificationBadge(user.getId())
                 ),
                 HttpStatus.OK
         );

@@ -1,5 +1,6 @@
 package com.full_party.user.dto;
 
+import com.full_party.values.Coordinates;
 import com.full_party.values.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,5 +22,6 @@ public class UserPatchDto {
     private Date birth;
     private Gender gender;
     private String address;
+    private Coordinates coordinates;
     private String mobile;
 }

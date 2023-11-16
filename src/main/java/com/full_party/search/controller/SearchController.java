@@ -55,7 +55,8 @@ public class SearchController {
         return new ResponseEntity(
                 searchMapper.mapToSearchResponseDto(
                         notificationService.checkNotificationBadge(user.getId()),
-                        partyResponseDtos
+                        partyResponseDtos,
+                        user.getCoordinates()
                 ),
                 HttpStatus.OK
         );
@@ -74,8 +75,9 @@ public class SearchController {
 
         return new ResponseEntity(
                 searchMapper.mapToSearchResponseDto(
-                    notificationService.checkNotificationBadge(user.getId()),
-                    partyResponseDtos
+                        notificationService.checkNotificationBadge(user.getId()),
+                        partyResponseDtos,
+                        user.getCoordinates()
                 ),
                 HttpStatus.OK
         );

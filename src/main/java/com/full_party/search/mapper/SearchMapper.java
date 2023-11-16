@@ -2,6 +2,7 @@ package com.full_party.search.mapper;
 
 import com.full_party.party.dto.PartyResponseDto;
 import com.full_party.search.dto.SearchResponseDto;
+import com.full_party.values.Coordinates;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -9,8 +10,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface SearchMapper {
 
-    default SearchResponseDto mapToSearchResponseDto(Boolean notificationBadge, List<PartyResponseDto> partyResponseDtos) {
+    default SearchResponseDto mapToSearchResponseDto(Boolean notificationBadge, List<PartyResponseDto> partyResponseDtos, Coordinates coordinates) {
 
-        return new SearchResponseDto(notificationBadge, partyResponseDtos);
+        return new SearchResponseDto(notificationBadge, partyResponseDtos, coordinates);
     }
 }

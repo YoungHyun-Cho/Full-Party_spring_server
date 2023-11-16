@@ -118,4 +118,10 @@ public class AuthController {
 
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @PostMapping("/verification")
+    public ResponseEntity verifyUser() {
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }

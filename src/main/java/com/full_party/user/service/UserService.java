@@ -54,6 +54,10 @@ public class UserService {
     }
 
     public User updateUser(User user) {
+
+        System.out.println("🟥 " + user.getCoordinates().getLat());
+        System.out.println("🟥 " + user.getCoordinates().getLng());
+
         User foundUser = findVerifiedUser(user.getId());
         User updatedUser = new User(foundUser, user);
         return userRepository.save(updatedUser);
