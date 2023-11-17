@@ -7,11 +7,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/health-check")
 public class InitController {
 
-    @GetMapping
+    @GetMapping("/health-check")
     public ResponseEntity healthCheck() {
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity root() {
+        return new ResponseEntity("Hello, FullParty", HttpStatus.OK);
     }
 }
