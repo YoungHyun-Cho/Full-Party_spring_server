@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/hearts")
+@RequestMapping("/hearts")
 public class HeartController {
 
     private final HeartService heartService;

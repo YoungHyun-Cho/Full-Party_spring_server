@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/search")
+@RequestMapping("/search")
 public class SearchController {
     // # 검색 관련 기능
     // 키워드 & 태그 검색

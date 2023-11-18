@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/parties")
+@RequestMapping("/parties")
 public class PartyController {
 
     private final PartyService partyService;

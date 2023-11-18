@@ -18,7 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/comments")
+@RequestMapping("/comments")
 public class CommentController {
 
     private final CommentService commentService;

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/users")
+@RequestMapping("/users")
 public class UserController {
 
     private final static String USER_DEFAULT_URL = "/v1/users";
