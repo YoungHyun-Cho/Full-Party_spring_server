@@ -70,6 +70,8 @@ public class SecurityConfiguration {
 //                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .authorizeRequests().antMatchers("/").permitAll()
+                .and()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .apply(new CustomFilterConfigurer())

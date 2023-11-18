@@ -40,7 +40,7 @@ public class UserAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
         else errorMessage = "Internal Server Error"; // 예외 처리 구현 시 반영 필요
 
         errorMessage = URLEncoder.encode(errorMessage, "UTF-8"); /* 한글 인코딩 깨짐 문제 방지 */
-        setDefaultFailureUrl("/v1/auth/error?errMsg=" + errorMessage);
+        setDefaultFailureUrl("/auth/error?errMsg=" + errorMessage);
         super.onAuthenticationFailure(request, response, exception);
     }
 }
