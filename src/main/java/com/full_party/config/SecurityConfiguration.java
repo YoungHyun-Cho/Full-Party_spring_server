@@ -48,7 +48,7 @@ public class SecurityConfiguration {
     private final UserService userService;
     private final UserDetailService userDetailService;
     private final JwtTokenizer jwtTokenizer;
-    public static final String URL = "https://localhost:8080";
+//    public static final String URL = "https://localhost:8080";
 
     public SecurityConfiguration(UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserService userService, @Lazy UserDetailService userDetailService, JwtTokenizer jwtTokenizer) {
         this.userAuthenticationSuccessHandler = userAuthenticationSuccessHandler;
@@ -94,6 +94,7 @@ public class SecurityConfiguration {
 //        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE"));
 
         corsConfiguration.addAllowedOriginPattern("https://localhost:3000"); // 로컬 프론트에서 접근
+        corsConfiguration.addAllowedOriginPattern("fullpartyspring.com"); // 배포 프론트에서 접근
         corsConfiguration.addAllowedOriginPattern("https://accounts.google.com");
 
 //        corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
