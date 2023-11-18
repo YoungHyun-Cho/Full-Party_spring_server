@@ -96,7 +96,7 @@ public class SecurityConfiguration {
 //        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE"));
 
         corsConfiguration.addAllowedOriginPattern("https://localhost:3000"); // 로컬 프론트에서 접근
-        corsConfiguration.addAllowedOriginPattern("fullpartyspring.com"); // 배포 프론트에서 접근
+        corsConfiguration.addAllowedOriginPattern("https://fullpartyspring.com"); // 배포 프론트에서 접근
         corsConfiguration.addAllowedOriginPattern("https://accounts.google.com");
 
 //        corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
