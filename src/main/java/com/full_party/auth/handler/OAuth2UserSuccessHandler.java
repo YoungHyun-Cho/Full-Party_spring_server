@@ -107,8 +107,10 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         return UriComponentsBuilder
                 .newInstance()
                 .scheme("https")
-                .host("localhost")
-                .port(3000)
+//                .host("localhost")
+//                .port(3000)
+                .host("fullpartyspring.com")
+//                .port("443") // 시도해보고 수정 필요
                 .path("/auth")
                 .queryParams(queryParams)
                 .build()
