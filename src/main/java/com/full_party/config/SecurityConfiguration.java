@@ -153,7 +153,7 @@ public class SecurityConfiguration {
     }
 
     private RequestMatcher authenticationFilterPath() {
-        String[] allowedPaths = {"/v1/auth/signin", "/v1/auth/verification"};
+        String[] allowedPaths = {"/auth/signin", "/auth/verification"};
         List<RequestMatcher> processingMatchers = new ArrayList<>();
 
         for (String path : allowedPaths) {
