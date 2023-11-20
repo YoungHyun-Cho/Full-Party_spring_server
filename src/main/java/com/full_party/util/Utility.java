@@ -11,6 +11,9 @@ import java.time.Duration;
 
 public class Utility {
 
+//    private static final String DOMAIN = "localhost";
+    private static final String DOMAIN = "fullpartyspring.com";
+
     public static Long getUserId(UserDetails userDetails) {
         return ((UserDetail) userDetails).getId();
     }
@@ -18,7 +21,7 @@ public class Utility {
     public static ResponseCookie createCookie(String name, String value, Integer maxAge) {
 
         return ResponseCookie.from(name, value)
-                .domain("localhost")
+                .domain(DOMAIN)
                 .path("/")
                 .sameSite("None")
                 .maxAge(Duration.ofMinutes(maxAge).getSeconds())
@@ -28,7 +31,7 @@ public class Utility {
 
     public static ResponseCookie createCookie(String name, String value) {
         return ResponseCookie.from(name, value)
-                .domain("localhost")
+                .domain(DOMAIN)
                 .path("/")
                 .sameSite("None")
                 .secure(true)
