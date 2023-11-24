@@ -11,8 +11,8 @@ import java.time.Duration;
 
 public class Utility {
 
-    private static final String DOMAIN = "localhost";
-//    private static final String DOMAIN = "fullpartyspring.com";
+//    private static final String DOMAIN = "localhost";
+    private static final String DOMAIN = "fullpartyspring.com";
 
     public static Long getUserId(UserDetails userDetails) {
         return ((UserDetail) userDetails).getId();
