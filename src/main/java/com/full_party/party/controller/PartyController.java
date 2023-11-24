@@ -11,6 +11,7 @@ import com.full_party.party.dto.*;
 import com.full_party.party.entity.Party;
 import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
+import com.full_party.tag.entity.Tag;
 import com.full_party.tag.service.TagService;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
@@ -64,7 +65,8 @@ public class PartyController {
                 userService.findUser(userDetails.getUsername())
         );
 
-        tagService.createTagList(party, partyRequestDto.getTags());
+        List<Tag> tagList = tagService.createTagList(party, partyRequestDto.getTags());
+        party.setTagList(tagList);
 
         URI uri =
                 UriComponentsBuilder
@@ -72,8 +74,6 @@ public class PartyController {
                         .path(PARTY_DEFAULT_URL + "/{party-id}")
                         .buildAndExpand(party.getId())
                         .toUri();
-
-        System.out.println("🟥" + uri);
 
         return ResponseEntity.created(uri).build();
     }
@@ -295,11 +295,15 @@ public class PartyController {
 
         partyRequestDto.setId(partyId);
 
-        Party party = partyService.updateParty(partyMapper.partyRequestDtoToParty(partyRequestDto));
+        Party requestedParty = partyMapper.partyRequestDtoToParty(partyRequestDto);
 
-        System.out.println("❤️" + party.getName());
+        List<Tag> newTagList = tagService.updateTagList(requestedParty, partyRequestDto.getTags());
 
-        return new ResponseEntity(partyMapper.partyToPartyResponseDto(party), HttpStatus.OK);
+        requestedParty.setTagList(newTagList);
+
+        Party updatedParty = partyService.updateParty(requestedParty);
+
+        return new ResponseEntity(partyMapper.partyToPartyResponseDto(updatedParty), HttpStatus.OK);
     }
 
     // 파티 상태 변경

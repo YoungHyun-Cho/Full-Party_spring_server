@@ -4,7 +4,9 @@ import com.full_party.auth.jwt.JwtTokenizer;
 import com.full_party.exception.BusinessLogicException;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
+import com.full_party.util.Utility;
 import com.full_party.values.SignUpType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -37,11 +39,11 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 //
 //         test
 
-        Set<Map.Entry<String, Object>> attributesSet = oAuth2User.getAttributes().entrySet();
-
-        for (Map.Entry<String, Object> entry : attributesSet) {
-            System.out.println("🔴" + entry.getKey() + " : " + entry.getValue());
-        }
+//        Set<Map.Entry<String, Object>> attributesSet = oAuth2User.getAttributes().entrySet();
+//
+//        for (Map.Entry<String, Object> entry : attributesSet) {
+//            System.out.println("🔴" + entry.getKey() + " : " + entry.getValue());
+//        }
 
         // test
 
@@ -54,7 +56,7 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
             signUpType = SignUpType.KAKAO;
 
-            user = saveUser(
+            user = saveOrFindUser(
                     String.valueOf(kakaoAccount.get("email")),
                     String.valueOf(properties.get("nickname")),
                     String.valueOf(properties.get("profile_image"))
@@ -67,7 +69,7 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
             signUpType = SignUpType.GOOGLE;
 
-            user = saveUser(
+            user = saveOrFindUser(
                     String.valueOf(attributes.get("email")),
                     String.valueOf(attributes.get("name")),
                     String.valueOf(attributes.get("picture"))
@@ -77,7 +79,8 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         }
     }
 
-    private User saveUser(String email, String userName, String profileImage) {
+    private User saveOrFindUser(String email, String userName, String profileImage) {
+
         User user = new User(email, userName, profileImage, signUpType);
 
         try {
@@ -93,7 +96,11 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         String accessToken = jwtTokenizer.delegateAccessToken(user);
         String refreshToken = jwtTokenizer.delegateRefreshToken(user);
 
+        response.setHeader("token", accessToken);
+        response.setHeader("refresh", refreshToken);
+
         String uri = createURI(accessToken, refreshToken, user).toString();
+
         getRedirectStrategy().sendRedirect(request, response, uri);
     }
 
@@ -107,10 +114,9 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         return UriComponentsBuilder
                 .newInstance()
                 .scheme("https")
-//                .host("localhost")
-//                .port(3000)
-                .host("fullpartyspring.com")
-//                .port("443") // 시도해보고 수정 필요
+                .host("localhost")
+                .port(3000)
+//                .host("fullpartyspring.com")
                 .path("/auth")
                 .queryParams(queryParams)
                 .build()

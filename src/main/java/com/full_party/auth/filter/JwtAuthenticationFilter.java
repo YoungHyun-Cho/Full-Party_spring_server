@@ -46,8 +46,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-        System.out.println("🟥 AttemptAuthentication");
-
         ObjectMapper objectMapper = new ObjectMapper();
         AuthDto authDto = objectMapper.readValue(request.getInputStream(), AuthDto.class);
 
@@ -63,9 +61,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String accessToken = jwtTokenizer.delegateAccessToken(user);
         String refreshToken = jwtTokenizer.delegateRefreshToken(user);
-
-        response.setHeader("Authorization", "Bearer " + accessToken);
-        response.setHeader("Refresh", refreshToken);
 
         response.addHeader("Set-Cookie", Utility.createCookie("token", accessToken, 10).toString());
         response.addHeader("Set-Cookie", Utility.createCookie("refresh", refreshToken, 60).toString());

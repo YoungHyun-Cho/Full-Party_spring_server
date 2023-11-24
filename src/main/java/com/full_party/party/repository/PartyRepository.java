@@ -20,5 +20,6 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
         List<Party> searchPartiesByKeyword(String keyword, String region);
 
         @Query("SELECT DISTINCT p FROM Party p JOIN p.tagList t WHERE t.value = :tagValue AND p.region = :region AND p.partyState != 'DISMISSED' AND p.partyState != 'COMPLETED'")
+//        @Query("SELECT DISTINCT p FROM Party p JOIN FETCH p.tagList t WHERE t.value = :tagValue AND p.region = :region AND p.partyState != 'DISMISSED' AND p.partyState != 'COMPLETED'")
         List<Party> searchPartiesByTagValue(String tagValue, String region);
 }

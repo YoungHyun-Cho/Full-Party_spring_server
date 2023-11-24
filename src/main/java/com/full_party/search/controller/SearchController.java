@@ -69,6 +69,8 @@ public class SearchController {
 
         User user = userService.findUser(userDetails.getUsername());
 
+        System.out.println(partyService.findParty(1L).getRegion().equals(region)); // region과 관련된 문제는 아님.
+
         List<PartyResponseDto> partyResponseDtos = partyService.findPartiesByTag(tagValue, user.getId(), region).stream()
                 .map(party -> partyMapper.partyToPartyResponseDto(party))
                 .collect(Collectors.toList());

@@ -65,6 +65,10 @@ public class UserService {
 
     public void deleteUser(Long userId) {
         User user = findVerifiedUser(userId);
+        deleteUser(user);
+    }
+
+    public void deleteUser(User user) {
         userRepository.delete(user);
     }
 

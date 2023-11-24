@@ -11,8 +11,8 @@ import java.time.Duration;
 
 public class Utility {
 
-//    private static final String DOMAIN = "localhost";
-    private static final String DOMAIN = "fullpartyspring.com";
+    private static final String DOMAIN = "localhost";
+//    private static final String DOMAIN = "fullpartyspring.com";
 
     public static Long getUserId(UserDetails userDetails) {
         return ((UserDetail) userDetails).getId();
@@ -23,7 +23,8 @@ public class Utility {
         return ResponseCookie.from(name, value)
                 .domain(DOMAIN)
                 .path("/")
-                .sameSite("None")
+//                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(Duration.ofMinutes(maxAge).getSeconds())
                 .secure(true)
                 .build();
@@ -33,8 +34,20 @@ public class Utility {
         return ResponseCookie.from(name, value)
                 .domain(DOMAIN)
                 .path("/")
-                .sameSite("None")
+//                .sameSite("None")
+                .sameSite("Lax")
                 .secure(true)
                 .build();
+    }
+
+    public static HttpHeaders setCookie(String accessToken, String refreshToken) {
+
+        HttpHeaders headers = new HttpHeaders();
+        ResponseCookie accessTokenCookie = Utility.createCookie("token", accessToken, 10);
+        ResponseCookie refreshTokenCookie = Utility.createCookie("refresh", refreshToken, 60);
+        headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+        return headers;
     }
 }

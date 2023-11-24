@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
-    private final static String USER_DEFAULT_URL = "/v1/users";
     private final UserService userService;
     private final PartyService partyService;
     private final NotificationService notificationService;
@@ -58,7 +57,7 @@ public class UserController {
         URI uri =
                 UriComponentsBuilder
                         .newInstance()
-                        .path(USER_DEFAULT_URL + "/{user-id}")
+                        .path("/users/{user-id}")
                         .buildAndExpand(user.getId())
                         .toUri();
 

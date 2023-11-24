@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TagService {
@@ -20,33 +21,45 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    public ArrayList<Tag> createTagList(Party party, ArrayList<String> tags) {
+    public List<Tag> createTagList(Party party, List<String> tags) {
 
-        ArrayList<Tag> tagList = new ArrayList<>();
+        List<Tag> tagList = new ArrayList<>();
 
         tags.stream()
-                .forEach(tagStr -> {
-                    Tag tag = new Tag(party, tagStr);
-                    tagRepository.save(tag);
-                    tagList.add(tag);
-                });
-
-        party.setTagList(tagList);
+                .forEach(tagStr -> tagList.add(createTag(party, tagStr)));
 
         return tagList;
     }
 
-    public ArrayList<Tag> findTags(Long partyId) {
+    public Tag createTag(Party party, String tagStr) {
 
-        List<Tag> tags = tagRepository.findByPartyId(partyId);
-
-        Optional.ofNullable(tags)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.TAGS_NOT_FOUND));
-
-        return (ArrayList<Tag>) tags;
+        Tag tag = new Tag(party, tagStr);
+        return tagRepository.save(tag);
     }
 
-    public List<Tag> findTagsByTagValue(String tagValue) {
+    public ArrayList<Tag> findTagList(Long partyId) {
+
+        List<Tag> tagList = tagRepository.findByPartyId(partyId);
+
+        Optional.ofNullable(tagList)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.TAGS_NOT_FOUND));
+
+        return (ArrayList<Tag>) tagList;
+    }
+
+    public List<Tag> findTagListByTagValue(String tagValue) {
         return tagRepository.searchTagsByTagValue(tagValue);
+    }
+
+    private void deleteTag(Tag tag) {
+        tagRepository.delete(tag);
+    }
+
+    public List<Tag> updateTagList(Party party, List<String> newTagStrList) {
+
+        party.getTagList().stream()
+                .forEach(tag -> deleteTag(tag));
+
+        return createTagList(party, newTagStrList);
     }
  }

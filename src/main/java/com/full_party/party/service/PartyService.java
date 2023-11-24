@@ -199,6 +199,7 @@ public class PartyService {
     }
 
     public List<Party> findPartiesByTag(String tagValue, Long userId, String region) {
+
         return partyRepository.searchPartiesByTagValue(tagValue, region).stream()
                 .map(party -> setTransientValues(party, userId))
                 .collect(Collectors.toList());
@@ -213,18 +214,9 @@ public class PartyService {
 
     public Party updateParty(Party party) {
 
-        System.out.println("❤️" + party.getId());
-
         Party foundParty = findVerifiedParty(party.getId());
 
-        System.out.println("❤️" + foundParty.getId());
-
-//        foundParty.setPartyState(party.getPartyState());
-//        foundParty.setMemberLimit(party.getMemberLimit());
-
         Party updatedParty = new Party(foundParty, party);
-
-        // 태그는 따로 다루어야 함.
 
         return partyRepository.save(updatedParty);
     }

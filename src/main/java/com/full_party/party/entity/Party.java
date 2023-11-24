@@ -118,7 +118,7 @@ public class Party extends Auditable {
     }
 
     public Party(Party previousParty, Party modifiedParty) {
-        this.id = modifiedParty.getId();
+        this.id = previousParty.getId();
         this.name = modifiedParty.getName();
         this.image = modifiedParty.getImage();
         this.content = modifiedParty.getContent();
@@ -132,7 +132,7 @@ public class Party extends Auditable {
         this.coordinates = modifiedParty.getCoordinates();
         this.partyState = previousParty.getPartyState();
         this.user = previousParty.getUser();
-        this.tagList = previousParty.tagList; // 수정 필요
+        this.tagList = modifiedParty.tagList;
         this.userParties = previousParty.userParties;
         this.comments = previousParty.getComments();
         this.hearts = previousParty.getHearts();
