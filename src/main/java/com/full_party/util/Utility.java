@@ -18,19 +18,13 @@ public class Utility {
 
     public static ResponseCookie createCookie(String name, String value, Integer minutes) {
 
-        ZonedDateTime serverTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-
-        // 만료 시간 설정 (현재로부터 10분 후)
-        ZonedDateTime expirationTime = serverTime.plus(minutes, ChronoUnit.MINUTES);
-
         return ResponseCookie.from(name, value)
                 .domain(DOMAIN)
                 .path("/")
-//                .sameSite("None")
-                .sameSite("Lax")
-                .maxAge(Duration.between(serverTime.toInstant(), expirationTime.toInstant()).getSeconds())
+                .sameSite("None")
+//                .sameSite("Lax")
+                .maxAge(minutes * 60)
 //                .maxAge(Duration.ofMinutes(minutes).getSeconds())
-//                .maxAge(minutes * 60)
 
                 .secure(true)
                 .build();
