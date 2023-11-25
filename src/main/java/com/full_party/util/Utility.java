@@ -21,11 +21,11 @@ public class Utility {
         return ResponseCookie.from(name, value)
                 .domain(DOMAIN)
                 .path("/")
-                .sameSite("None")
-//                .sameSite("Lax")
+//                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(minutes * 60)
 //                .maxAge(Duration.ofMinutes(minutes).getSeconds())
-                .secure(true)
+//                .secure(true)
 //                .httpOnly(false)
                 .build();
     }
