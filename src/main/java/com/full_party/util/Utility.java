@@ -26,7 +26,7 @@ public class Utility {
                 .maxAge(minutes * 60)
 //                .maxAge(Duration.ofMinutes(minutes).getSeconds())
                 .secure(true)
-                .httpOnly(true)
+//                .httpOnly(true)
                 .build();
     }
 
