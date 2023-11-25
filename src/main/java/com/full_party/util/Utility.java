@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 public class Utility {
 
 //    private static final String DOMAIN = "localhost";
-    private static final String DOMAIN = ".fullpartyspring.com";
+    private static final String DOMAIN = "fullpartyspring.com";
 
     public static Long getUserId(UserDetails userDetails) {
         return ((UserDetail) userDetails).getId();
@@ -26,7 +26,7 @@ public class Utility {
                 .maxAge(minutes * 60)
 //                .maxAge(Duration.ofMinutes(minutes).getSeconds())
                 .secure(true)
-                .httpOnly(false)
+//                .httpOnly(false)
                 .build();
     }
 
