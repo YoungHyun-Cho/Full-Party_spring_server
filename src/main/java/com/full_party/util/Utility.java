@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 public class Utility {
 
 //    private static final String DOMAIN = "localhost";
-    private static final String DOMAIN = "fullpartyspringserver.com";
+    private static final String DOMAIN = ".fullpartyspring.com";
 
     public static Long getUserId(UserDetails userDetails) {
         return ((UserDetail) userDetails).getId();
@@ -21,11 +21,11 @@ public class Utility {
         return ResponseCookie.from(name, value)
                 .domain(DOMAIN)
                 .path("/")
-                .sameSite("None")
-//                .sameSite("Lax")
+//                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(minutes * 60)
 //                .maxAge(Duration.ofMinutes(minutes).getSeconds())
-                .secure(true)
+//                .secure(true)
 //                .httpOnly(true)
                 .build();
     }
