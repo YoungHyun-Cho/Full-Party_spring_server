@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -14,20 +15,30 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PartyRequestDto {
+public class partyRequestDto {
+
     private Long id;
     private Long userId;
-    private String name;
     private String image;
-    private String content;
+    private String region;
+    private Integer memberLimit;
     private Date startDate;
     private Date endDate;
-    private Boolean isOnline;
-    private String privateLink;
-    private String region;
-    private String location;
-    private Integer memberLimit;
-    private PartyState partyState;
     private Coordinates coordinates;
+    private Boolean isOnline;
     private ArrayList<String> tags;
+
+    @NotBlank
+    private String name;
+
+    @NotBlank
+    private String content;
+
+    @NotBlank
+    private String location;
+
+    @NotBlank
+    private String privateLink;
+
+    private PartyState partyState;
 }

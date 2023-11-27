@@ -19,40 +19,14 @@ import java.util.stream.Collectors;
 public interface PartyMapper {
 
     @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToUser")
-    Party partyRequestDtoToParty(PartyRequestDto partyRequestDto);
+    Party partyRequestDtoToParty(partyRequestDto partyRequestDto);
 
     @Mapping(source = "tagList", target = "tags", qualifiedByName = "TagListToStringList")
     @Mapping(source = "comments", target = "comments", ignore = true)
     @Mapping(source = "user", target = "userId", qualifiedByName = "userToUserId")
     PartyResponseDto partyToPartyResponseDto(Party party);
 
-    //    @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToTempUser")
-//    @Mapping(source = "partyId", target = "party", qualifiedByName = "partyIdToTempParty")
-//    Waiter waiterDtoToWaiter(WaiterDto waiterDto);
-//
-//    @Mapping(source = "user", target = "userId", qualifiedByName = "userToUserId")
-//    @Mapping(source = "party", target = "partyId", qualifiedByName = "partyToPartyId")
     WaiterDto waiterToWaiterDto(Waiter waiter);
-//
-//    @Named("userIdToTempUser")
-//    default User userIdToTempUser(Long userId) {
-//        return new User(userId);
-//    }
-//
-//    @Named("partyIdToTempParty")
-//    default Party partyIdToTempParty(Long partyId) {
-//        return new Party(partyId);
-//    }
-//
-//    @Named("userToUserId")
-//    default Long userToUserId(User user) {
-//        return user.getId();
-//    }
-//
-//    @Named("partyToPartyId")
-//    default Long partyToPartyId(Party party) {
-//        return party.getId();
-//    }
 
     @Named("TagListToStringList")
     default List<String> TagListToStringList(List<Tag> tagList) {
@@ -95,10 +69,4 @@ public interface PartyMapper {
         return new User(userId);
     }
 
-//    @Named("userListToPartyMemberDtoList")
-//    default List<PartyMemberDto> userListToPartyMemberDtoList(List<User> userList) {
-//        return userList.stream()
-//                .map(user -> new PartyMemberDto(user))
-//                .collect(Collectors.toList());
-//    }
 }

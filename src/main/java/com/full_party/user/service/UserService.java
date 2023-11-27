@@ -15,27 +15,18 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-//    private final CustomAuthorityUtils customAuthorityUtils;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-//        this.customAuthorityUtils = customAuthorityUtils;
     }
 
     public User createUser(User user) {
 
-        verifyExistsEmail(user.getEmail());
-
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
 
-//        List<String> roles = customAuthorityUtils.createRoles(user.getEmail());
-//        user.setRoles(roles);
-
-        User newUser = new User(user);
-
-        return userRepository.save(newUser);
+        return userRepository.save(new User(user));
     }
 
     public User findUser(Long userId) {
@@ -54,9 +45,6 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-
-        System.out.println("🟥 " + user.getCoordinates().getLat());
-        System.out.println("🟥 " + user.getCoordinates().getLng());
 
         User foundUser = findVerifiedUser(user.getId());
         User updatedUser = new User(foundUser, user);
@@ -84,9 +72,16 @@ public class UserService {
         return user;
     }
 
-    private void verifyExistsEmail(String email) throws BusinessLogicException {
+    public void verifyExistsEmail(String email) throws BusinessLogicException {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) throw new BusinessLogicException(ExceptionCode.USER_EXISTS);
+    }
+
+    public void verifyExistsUserName(String userName) throws BusinessLogicException {
+        Optional<User> user = userRepository.findByUserName(userName);
+        if (user.isPresent()) {
+            throw new BusinessLogicException(ExceptionCode.USER_EXISTS);
+        }
     }
 
     public Level.Result updateExp(Long userId, Integer exp) {

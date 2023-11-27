@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MailDto {
 
+
     private String email;
     private Integer code;
 

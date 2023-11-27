@@ -31,11 +31,6 @@ public enum Level {
         this.levelUpExp = levelUpExp;
     }
 
-//    private Integer calculateLevelUpExp() {
-//        return getLevel(value - 1).levelUpExp + (5 * (value - 1));
-//
-//    }
-
     public static Result calculateLevel(Integer userExp, Integer userLevel) {
 
         if (userLevel == MAX_LEVEL) return new Result(userLevel, userExp, null); // 만렙인 경우 레벨업 불가

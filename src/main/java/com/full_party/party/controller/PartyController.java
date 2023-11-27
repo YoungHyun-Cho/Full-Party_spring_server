@@ -16,7 +16,6 @@ import com.full_party.tag.service.TagService;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.util.Utility;
-import com.full_party.values.Coordinates;
 import com.full_party.values.Level;
 import com.full_party.values.NotificationInfo;
 import com.full_party.values.PartyState;
@@ -27,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,7 +57,7 @@ public class PartyController {
     // # 기본 CRUD
     // 파티장 : 퀘스트 생성
     @PostMapping
-    public ResponseEntity postParty(@RequestBody PartyRequestDto partyRequestDto,
+    public ResponseEntity postParty(@Valid @RequestBody partyRequestDto partyRequestDto,
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
         Party party = partyService.createParty(
@@ -276,22 +276,7 @@ public class PartyController {
     // 파티 정보 수정
     @PatchMapping("/{party-id}")
     public ResponseEntity patchParty(@PathVariable("party-id") Long partyId,
-                                     @RequestBody PartyRequestDto partyRequestDto) {
-
-//        System.out.println("partyRequestDto.getId() = " + partyRequestDto.getId());
-//        System.out.println("partyRequestDto.getName() = " + partyRequestDto.getName());
-//        System.out.println("partyRequestDto.getImage() = " + partyRequestDto.getImage());
-//        System.out.println("partyRequestDto.getContent() = " + partyRequestDto.getContent());
-//        System.out.println("partyRequestDto.getStartDate() = " + partyRequestDto.getStartDate());
-//        System.out.println("partyRequestDto.getEndDate() = " + partyRequestDto.getEndDate());
-//        System.out.println("partyRequestDto.getIsOnline() = " + partyRequestDto.getIsOnline());
-//        System.out.println("partyRequestDto.getPrivateLink() = " + partyRequestDto.getPrivateLink());
-//        System.out.println("partyRequestDto.getRegion() = " + partyRequestDto.getRegion());
-//        System.out.println("partyRequestDto.getLocation() = " + partyRequestDto.getLocation());
-//        System.out.println("partyRequestDto.getMemberLimit() = " + partyRequestDto.getMemberLimit());
-//        System.out.println("partyRequestDto.getCoordinates() = " + partyRequestDto.getCoordinates());
-//        System.out.println("partyRequestDto.getPartyState() = " + partyRequestDto.getPartyState());
-//        partyRequestDto.getTags().stream().forEach(tag -> System.out.println(tag));
+                                     @Valid @RequestBody partyRequestDto partyRequestDto) {
 
         partyRequestDto.setId(partyId);
 

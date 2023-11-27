@@ -17,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/comments")
 public class CommentController {
@@ -35,7 +37,7 @@ public class CommentController {
 
     // 댓글 등록
     @PostMapping
-    public ResponseEntity postComment(@RequestBody CommentPostDto commentDto,
+    public ResponseEntity postComment(@Valid @RequestBody CommentPostDto commentDto,
                                       @AuthenticationPrincipal UserDetails userDetails) {
 
         Long userId = Utility.getUserId(userDetails);
@@ -56,7 +58,7 @@ public class CommentController {
 
     // 대댓글 등록
     @PostMapping("{comment-id}/reply")
-    public ResponseEntity postReply(@RequestBody ReplyPostDto replyPostDto,
+    public ResponseEntity postReply(@Valid @RequestBody ReplyPostDto replyPostDto,
                                     @PathVariable("comment-id") Long commentId,
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -78,7 +80,7 @@ public class CommentController {
 
     // 댓글 수정
     @PatchMapping("/{comment-id}")
-    public ResponseEntity patchComment(@RequestBody CommentPostDto commentDto,
+    public ResponseEntity patchComment(@Valid @RequestBody CommentPostDto commentDto,
                                        @PathVariable("comment-id") Long commentId,
                                        @RequestHeader("user-id") Long userId) {
 
@@ -91,7 +93,7 @@ public class CommentController {
 
     // 대댓글 수정
     @PatchMapping("/{comment-id}/reply/{reply-id}")
-    public ResponseEntity patchReply(@RequestBody ReplyPostDto replyDto,
+    public ResponseEntity patchReply(@Valid @RequestBody ReplyPostDto replyDto,
                                      @PathVariable("comment-id") Long commentId,
                                      @PathVariable("reply-id") Long replyId) {
         return new ResponseEntity(replyDto, HttpStatus.OK);

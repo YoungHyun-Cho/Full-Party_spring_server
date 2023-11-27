@@ -27,13 +27,4 @@ public class PartyMemberDto {
     private SignUpType signUpType;
     private LocalDateTime joinDate;
 
-//    public PartyMemberDto(User user, LocalDateTime joinDate) {
-//        this.id = user.getId();
-//        this.userName = user.getUserName();
-//        this.address = user.getAddress();
-//        this.profileImage = user.getProfileImage();
-//        this.exp = user.getExp();
-//        this.level = user.getLevel();
-//        this.signUpType = user.getSignUpType();
-//    }
 }

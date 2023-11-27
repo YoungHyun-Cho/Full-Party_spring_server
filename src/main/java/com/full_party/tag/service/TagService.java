@@ -37,20 +37,6 @@ public class TagService {
         return tagRepository.save(tag);
     }
 
-    public ArrayList<Tag> findTagList(Long partyId) {
-
-        List<Tag> tagList = tagRepository.findByPartyId(partyId);
-
-        Optional.ofNullable(tagList)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.TAGS_NOT_FOUND));
-
-        return (ArrayList<Tag>) tagList;
-    }
-
-    public List<Tag> findTagListByTagValue(String tagValue) {
-        return tagRepository.searchTagsByTagValue(tagValue);
-    }
-
     private void deleteTag(Tag tag) {
         tagRepository.delete(tag);
     }

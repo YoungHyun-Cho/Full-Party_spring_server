@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.Base64;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity postUser(@RequestBody UserPostDto userPostDto) {
+    public ResponseEntity postUser(@Valid @RequestBody UserPostDto userPostDto) {
 
         User user = userService.createUser(userMapper.userPostDtoToUser(userPostDto));
 
@@ -62,6 +63,14 @@ public class UserController {
                         .toUri();
 
         return ResponseEntity.created(uri).build();
+    }
+
+    @PostMapping("/name")
+    public ResponseEntity checkUserName(@RequestParam("user_name") String userName) {
+
+        userService.verifyExistsUserName(userName);
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     // 마이페이지 정보 제공

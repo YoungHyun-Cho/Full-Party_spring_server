@@ -44,12 +44,6 @@ public class PartyService {
         return partyRepository.save(party);
     }
 
-//    private List<Party> filterDismissedParty(List<Party> parties) {
-//        return parties.stream()
-//                .filter(party -> party.getPartyState() != PartyState.DISMISSED)
-//                .collect(Collectors.toList());
-//    }
-
     // 역할에 따른 조회 - 파티장인 파티 검색
     private List<Party> findLeadingParty(Long userId) {
         return partyRepository.findByUserId(userId);
@@ -57,41 +51,35 @@ public class PartyService {
 
     // 역할에 따른 조회 - 파티원인 파티 검색
     private List<Party> findParticipatingParty(Long userId) {
+
         return userPartyRepository.findByUserId(userId).stream()
                 .map(userParty -> findParty(userParty.getParty().getId()))
                 .collect(Collectors.toList());
     }
 
     private List<Party> filterProgressingParty(List<Party> parties) {
+
         return parties.stream()
                 .filter(party -> party.getPartyState() == PartyState.RECRUITING || party.getPartyState() == PartyState.FULL_PARTY)
                 .collect(Collectors.toList());
     }
 
     private List<Party> filterCompletedParty(List<Party> parties) {
+
         return parties.stream()
                 .filter(party -> party.getPartyState() == PartyState.COMPLETED)
                 .collect(Collectors.toList());
     }
 
     public List<Party> findProgressingLeadingParty(Long userId) {
-//        return findLeadingParty(userId).stream()
-//                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
-//                .collect(Collectors.toList());
         return filterProgressingParty(findLeadingParty(userId));
     }
 
     public List<Party> findProgressingParticipatingParty(Long userId) {
-//        return findParticipatingParty(userId).stream()
-//                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
-//                .collect(Collectors.toList());
         return filterProgressingParty(findParticipatingParty(userId));
     }
 
     public List<Party> findProgressingMyParty(Long userId) {
-//        return findMyParties(userId).stream()
-//                .filter(party -> party.getPartyState() != PartyState.COMPLETED)
-//                .collect(Collectors.toList());
 
         return filterProgressingParty(
                 Stream
@@ -101,9 +89,6 @@ public class PartyService {
     }
 
     public List<Party> findCompletedMyParty(Long userId) {
-//        return findMyParties(userId).stream()
-//                .filter(party -> party.getPartyState() == PartyState.COMPLETED)
-//                .collect(Collectors.toList());
 
         return filterCompletedParty(
                 Stream
@@ -111,13 +96,6 @@ public class PartyService {
                     .collect(Collectors.toList())
         );
     }
-
-    // 내가 파티장인 파티와 파티원인 파티를 모두 취합해서 리턴
-//    public List<Party> findMyParties(Long userId) {
-//        return Stream.of(findLeadingParty(userId), findParticipatingParty(userId))
-//                .flatMap(el -> el.stream())
-//                .collect(Collectors.toList());
-//    }
 
     public List<Party> findLocalParties(Long userId, String region) {
 
@@ -230,22 +208,12 @@ public class PartyService {
         return partyRepository.save(foundParty);
     }
 
+    // 필요 예시 : 알림 창에서 파티 접근 -> 파티 삭제됨 -> 404 응답
     private Party findVerifiedParty(Long partyId) {
         Optional<Party> optionalParty = partyRepository.findById(partyId);
         Party party = optionalParty.orElseThrow(() -> new BusinessLogicException(ExceptionCode.PARTY_NOT_FOUND));
         return party;
     }
-
-//    public Waiter createWaiter(Waiter waiter) {
-//
-//        User user = userService.findUser(waiter.getUser().getId());
-//        Party party = findParty(waiter.getParty().getId());
-//
-//        waiter.setUser(user);
-//        waiter.setParty(party);
-//
-//        return waiterRepository.save(waiter);
-//    }
 
     public Waiter createWaiter(Long userId, Long partyId, String message) {
 
@@ -255,12 +223,6 @@ public class PartyService {
 
         return waiterRepository.save(waiter);
     }
-
-//    public Waiter updateWaiterMessage(Waiter waiter) {
-//        Waiter foundWaiter = findWaiter(waiter.getUser().getId(), waiter.getParty().getId());
-//        foundWaiter.setMessage(waiter.getMessage());
-//        return waiterRepository.save(foundWaiter);
-//    }
 
     public void updateMessage(Long userId, Long partyId, String message) {
         try {
@@ -340,13 +302,7 @@ public class PartyService {
         userPartyRepository.delete(userParty);
     }
 
-    public void deleteParty(Long partyId) {
-        Party foundParty = findParty(partyId);
-        deleteParty(foundParty);
-    }
-
     public void deleteParty(Party party) {
-//        partyRepository.delete(party);
         party.setPartyState(PartyState.DISMISSED);
         partyRepository.save(party);
     }
@@ -355,8 +311,6 @@ public class PartyService {
 
         // 파티장은 userParty X -> 파티원만 체크
         if (party.getUser().getId() != user.getId()) {
-
-//            List<UserParty> userParties = userPartyRepository.findByPartyId(party.getId());
 
             // 자신을 제외한 파티원을 모두 리뷰했는지 체크
             if (userPartyRepository.findByPartyId(party.getId()).size() == resultsLength) {
@@ -369,23 +323,13 @@ public class PartyService {
 
     public Boolean checkIsReviewed(User user, Party party) {
 
-        // 파티장의 경우, 퀘스트 완료 전에 반드시 리뷰가 선행되어야만 함.
-        // 즉 파티 상태가 COMPLETED -> 파티장은 이미 리뷰를 진행한 상태이므로 true 리턴
         if (party.getPartyState() == PartyState.COMPLETED && party.getUser().getId() == user.getId()) return true;
 
         try {
-
-            // 파티원이 리뷰를 진행했는지 확인
             return findUserParty(user.getId(), party.getId()).getIsReviewed();
         }
         catch (BusinessLogicException e) {
-
-            // UserParty를 찾을 수 없다면 파티원이 아님 -> false 리턴
             return false;
         }
     }
-
-//    public Boolean CheckIsLeader(User user, Party party) {
-//        // 유저가 파티장인지 파티원인지 확인 -> 참여신청 거절 및 강퇴 등에 사용 예정
-//    }
 }

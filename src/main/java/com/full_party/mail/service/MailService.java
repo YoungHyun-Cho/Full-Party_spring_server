@@ -75,8 +75,6 @@ public class MailService {
 
     public int sendMail(String email) {
 
-        System.out.println("🟥 mailService.sendMail: 🟥" + email + "🟥");
-
         MimeMessage message = createMail(email);
 
         javaMailSender.send(message);

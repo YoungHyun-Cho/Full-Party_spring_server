@@ -25,18 +25,11 @@ public class CommentService {
     }
 
     public Comment createComment(Comment comment) {
-
-//        comment.setUser(userService.findUser(comment.getUser().getId())); -> Controller에서 처리
-//        comment.setParty(partyService.findParty(comment.getParty().getId())); -> Controller에서 처리
-
         return commentRepository.save(comment);
     }
 
     public Comment findComment(Long commentId) {
-
-        Optional<Comment> optionalComment = commentRepository.findById(commentId);
-        Comment comment = optionalComment.orElseThrow(() -> new BusinessLogicException(ExceptionCode.COMMENT_NOT_FOUND));
-        return comment;
+        return commentRepository.findById(commentId).get();
     }
 
     public List<Comment> findComments(Long partyId) {
