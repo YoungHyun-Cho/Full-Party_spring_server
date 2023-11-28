@@ -57,7 +57,7 @@ public class PartyController {
     // # 기본 CRUD
     // 파티장 : 퀘스트 생성
     @PostMapping
-    public ResponseEntity postParty(@Valid @RequestBody partyRequestDto partyRequestDto,
+    public ResponseEntity postParty(@Valid @RequestBody PartyRequestDto partyRequestDto,
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
         Party party = partyService.createParty(
@@ -276,7 +276,7 @@ public class PartyController {
     // 파티 정보 수정
     @PatchMapping("/{party-id}")
     public ResponseEntity patchParty(@PathVariable("party-id") Long partyId,
-                                     @Valid @RequestBody partyRequestDto partyRequestDto) {
+                                     @Valid @RequestBody PartyRequestDto partyRequestDto) {
 
         partyRequestDto.setId(partyId);
 

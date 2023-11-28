@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public interface PartyMapper {
 
     @Mapping(source = "userId", target = "user", qualifiedByName = "userIdToUser")
-    Party partyRequestDtoToParty(partyRequestDto partyRequestDto);
+    Party partyRequestDtoToParty(PartyRequestDto partyRequestDto);
 
     @Mapping(source = "tagList", target = "tags", qualifiedByName = "TagListToStringList")
     @Mapping(source = "comments", target = "comments", ignore = true)
