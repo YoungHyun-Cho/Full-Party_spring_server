@@ -150,4 +150,9 @@ public class User extends Auditable {
         this.mobile = signUpType.getType();
         this.signUpType = signUpType;
     }
+
+    public String getProfileImage() {
+        if (signUpType == SignUpType.GUEST || signUpType == SignUpType.NORMAL) return "https://fullpartyspringimageserver.s3.ap-northeast-2.amazonaws.com/" + profileImage;
+        else return profileImage;
+    }
 }
