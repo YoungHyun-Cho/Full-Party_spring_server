@@ -49,9 +49,18 @@ public class CommentService {
         return commentRepository.save(foundComment);
     }
 
+    public Reply findReply(Long replyId) {
+        return replyRepository.findById(replyId).get();
+    }
+
     public void deleteComment(Long commentId) {
         Comment foundComment = findComment(commentId);
         commentRepository.delete(foundComment);
+    }
+
+    public void deleteReply(Long replyId) {
+        Reply foundReply = findReply(replyId);
+        replyRepository.delete(foundReply);
     }
 
     public Reply createReply(Reply reply) {

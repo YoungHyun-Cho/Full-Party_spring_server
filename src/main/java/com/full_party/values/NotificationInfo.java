@@ -6,22 +6,6 @@ import lombok.Getter;
 
 public enum NotificationInfo {
 
-//    "apply": "님이 퀘스트에 지원했습니다.",
-//            "accept": "파티 가입이 승인됐습니다.",
-//            "deny": "파티 가입이 거절됐습니다.",
-//            "expel": "파티에서 추방당했습니다.",
-//            "quit": "님이 파티에서 탈퇴했습니다.",
-//            "favorite": "님이 퀘스트에 관심을 보입니다.",
-//            "complete": "퀘스트를 클리어했습니다!",
-//            "fullparty": "파티원 모집이 완료됐습니다. 퀘스트를 진행해보세요!",
-//            "reparty": "파티원을 재모집중입니다.",
-//            "dismiss": "파티가 해산됐습니다.",
-//            "question": "님의 퀘스트 문의가 도착했습니다.",
-//            "answer": "퀘스트 문의에 대한 답변이 도착했습니다.",
-//            "reply": "님의 답변에 대한 재문의가 도착했습니다.",
-//            "levelup": "로 레벨이 올랐습니다!",
-//            "leveldown": "로 레벨이 떨어졌습니다."
-
     APPLY("APPLY", Type.PARTY_REQUIRE_NAME, "님이 퀘스트에 지원했습니다."), // 파티 가입 신청 -> 파티장에게
     ACCEPT("ACCEPT", Type.PARTY, "파티 가입이 승인되었습니다."), // 파티 가입 승인 -> 파티원 1명에게
     DENY("DENY", Type.PARTY, "파티 가입이 거절되었습니다."), // 파티 가입 거절 -> 파티원 1명에게
@@ -43,11 +27,9 @@ public enum NotificationInfo {
     private String label;
 
     @Getter
-//    @JsonValue
     private Type type;
 
     @Getter
-//    @JsonValue
     private String content;
 
     NotificationInfo(String label, Type type, String content) {

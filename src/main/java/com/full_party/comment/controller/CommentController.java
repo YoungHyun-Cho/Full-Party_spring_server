@@ -78,36 +78,21 @@ public class CommentController {
         return new ResponseEntity(commentMapper.mapToCommentResponseDto(reply), HttpStatus.CREATED);
     }
 
-    // 댓글 수정
-    @PatchMapping("/{comment-id}")
-    public ResponseEntity patchComment(@Valid @RequestBody CommentPostDto commentDto,
-                                       @PathVariable("comment-id") Long commentId,
-                                       @RequestHeader("user-id") Long userId) {
-
-        commentDto.setUserId(userId);
-
-        Comment comment = commentService.updateComment(commentMapper.commentDtoToComment(commentDto));
-
-        return new ResponseEntity(commentMapper.mapToCommentResponseDto(comment), HttpStatus.OK);
-    }
-
-    // 대댓글 수정
-    @PatchMapping("/{comment-id}/reply/{reply-id}")
-    public ResponseEntity patchReply(@Valid @RequestBody ReplyPostDto replyDto,
-                                     @PathVariable("comment-id") Long commentId,
-                                     @PathVariable("reply-id") Long replyId) {
-        return new ResponseEntity(replyDto, HttpStatus.OK);
-    }
-
     // 댓글 삭제
     @DeleteMapping("/{comment-id}")
     public ResponseEntity deleteComment(@PathVariable("comment-id") Long commentId) {
+
+        commentService.deleteComment(commentId);
+
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     // 대댓글 삭제
-    @DeleteMapping("/{comment-id}/reply/{reply-id}")
+    @DeleteMapping("/{comment-id}/replies/{reply-id}")
     public ResponseEntity deleteReply(@PathVariable("reply-id") Long replyId) {
+
+        commentService.deleteReply(replyId);
+
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

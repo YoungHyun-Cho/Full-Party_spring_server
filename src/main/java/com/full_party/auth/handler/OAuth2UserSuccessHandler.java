@@ -116,9 +116,9 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         return UriComponentsBuilder
                 .newInstance()
                 .scheme("https")
-//                .host("localhost")
-//                .port(3000)
-                .host("fullpartyspring.com")
+                .host("localhost")
+                .port(3000)
+//                .host("fullpartyspring.com")
                 .path("/auth")
                 .queryParams(queryParams)
                 .build()

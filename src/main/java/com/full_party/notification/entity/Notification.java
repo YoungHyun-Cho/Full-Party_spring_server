@@ -24,12 +24,9 @@ public class Notification extends Auditable {
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "PARTY_ID")
     private Party party;
-
-//    @Column(nullable = false)
-//    private String content;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

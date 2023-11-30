@@ -69,7 +69,9 @@ public class AuthController {
 
         HttpHeaders headers = Utility.setCookie("temp", "temp");
 
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .build();
     }
 
     @PostMapping("/verification")

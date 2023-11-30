@@ -1,4 +1,4 @@
-package com.full_party.init;
+package com.full_party.init.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -41,6 +41,9 @@ public class NotificationMapper {
             content = userService.findUser(notification.getSubjectId()).getUserName() + notificationInfo.getContent(); // 아래 설명 참고
         }
 
+        System.out.println("subject = " + subject);
+        System.out.println("content = " + content);
+
         return new NotificationDto(
                 subject, content, notificationInfo.getType().toString(), notificationInfo.getLabel(),
                 notification.getParty().getId(), notification.getIsRead(), notification.getCreatedAt()
@@ -55,21 +58,4 @@ public class NotificationMapper {
                         .collect(Collectors.toList())
         );
     }
-
-    /*
-    * - 알림 생성 시각과 알림 제공 시각 간에 차이 존재
-    * - 알림 생성 이후, 파티 이름, 유저 이름 등이 변경될 것을 감안하여, 알림 제공 시점에서 최신의 정보를 다시 가져와서 제공
-    *
-    * 🟥 해야 할 것
-    * - Mapper를 레퍼런스 삼아 PartyController와 NotificationController 코드 수정
-    * */
-//
-//    default NotificationListDto mapToNotificationListDto(List<Notification> notifications) {
-//
-//        List<NotificationDto> notificationDtos = notifications.stream()
-//                .map(notification -> notificationToNotificationDto(notification))
-//                .collect(Collectors.toList());
-//
-//        return new NotificationListDto(notificationDtos);
-//    }
 }

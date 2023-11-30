@@ -13,8 +13,10 @@ import com.full_party.user.dto.UserPostDto;
 import com.full_party.user.entity.User;
 import com.full_party.user.mapper.UserMapper;
 import com.full_party.user.service.UserService;
+import com.full_party.util.Utility;
 import io.jsonwebtoken.Jwts;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -114,8 +116,12 @@ public class UserController {
     @DeleteMapping("/{user-id}")
     public ResponseEntity deleteUser(@PathVariable("user-id") Long userId) {
 
+        HttpHeaders headers = Utility.setCookie("temp", "temp");
+
         userService.deleteUser(userId);
 
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent()
+                .headers(headers)
+                .build();
     }
 }
