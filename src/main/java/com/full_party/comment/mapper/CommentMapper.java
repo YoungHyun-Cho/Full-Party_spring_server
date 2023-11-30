@@ -23,9 +23,6 @@ public interface CommentMapper {
     @Mapping(source = "commentId", target = "comment", qualifiedByName = "commentIdToComment")
     Reply replyPostDtoToReply(ReplyPostDto replyPostDto);
 
-//    @Mapping(source = "user", target = "userId", qualifiedByName = "userToUserId")
-//    @Mapping(source = "comment", target = "commentId", qualifiedByName = "commentToCommentId")
-
     default CommentResponseDto mapToCommentResponseDto(QnA qna) {
         return new CommentResponseDto(
                 qna.getId(),

@@ -18,20 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-@Slf4j
+// 필요 여부 고민 필요
 @Component
 public class UserAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-
-        log.error("# Authentication failed : {}", exception.getMessage());
-
-        System.out.println("❤️" + request.getRequestURI());
-
-        System.out.println("🟥" + exception.getMessage());
-        System.out.println("🟥" + exception.getCause());
-        System.out.println("🟥" + exception.getClass());
 
         String errorMessage;
 
@@ -39,7 +31,7 @@ public class UserAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
             exception instanceof InternalAuthenticationServiceException) errorMessage = "User Not Found";
         else errorMessage = "Internal Server Error"; // 예외 처리 구현 시 반영 필요
 
-        errorMessage = URLEncoder.encode(errorMessage, "UTF-8"); /* 한글 인코딩 깨짐 문제 방지 */
+        errorMessage = URLEncoder.encode(errorMessage, "UTF-8");
         setDefaultFailureUrl("/auth/error?errMsg=" + errorMessage);
         super.onAuthenticationFailure(request, response, exception);
     }

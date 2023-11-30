@@ -5,19 +5,17 @@ import com.full_party.heart.repository.HeartRepository;
 import com.full_party.party.entity.Party;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class HeartService {
 
     private final HeartRepository heartRepository;
-
-    public HeartService(HeartRepository heartRepository) {
-        this.heartRepository = heartRepository;
-    }
 
     public Heart createHeart(User user, Party party) {
         Heart heart = new Heart(user, party);

@@ -17,7 +17,6 @@ public class UserDetail extends User implements UserDetails {
 
         setId(user.getId());
         setEmail(user.getEmail());
-//            setPassword(passwordEncoder.encode(user.getPassword()));
         setPassword(user.getPassword());
         setRoles(user.getRoles());
     }

@@ -40,14 +40,6 @@ public class CommentService {
         return replyRepository.findByCommentId(commentId);
     }
 
-    public Comment updateComment(Comment comment) {
-
-        Comment foundComment = findComment(comment.getId());
-
-        foundComment.setContent(comment.getContent());
-
-        return commentRepository.save(foundComment);
-    }
 
     public Reply findReply(Long replyId) {
         return replyRepository.findById(replyId).get();

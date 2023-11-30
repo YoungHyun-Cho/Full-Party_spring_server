@@ -7,6 +7,7 @@ import com.full_party.user.entity.User;
 import com.full_party.util.Utility;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.tomcat.util.http.HeaderUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,15 +33,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenizer jwtTokenizer;
-
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenizer jwtTokenizer) {
-        this.authenticationManager = authenticationManager;
-        this.jwtTokenizer = jwtTokenizer;
-    }
 
     @SneakyThrows
     @Override

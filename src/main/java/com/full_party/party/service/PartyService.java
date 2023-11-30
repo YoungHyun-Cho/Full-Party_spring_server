@@ -13,6 +13,7 @@ import com.full_party.party.repository.WaiterRepository;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.values.PartyState;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class PartyService {
     private final PartyRepository partyRepository;
     private final UserPartyRepository userPartyRepository;
@@ -29,27 +31,16 @@ public class PartyService {
     private final HeartService heartService;
     private final CommentService commentService;
 
-    public PartyService(PartyRepository partyRepository, UserPartyRepository userPartyRepository, WaiterRepository waiterRepository, UserService userService, HeartService heartService, CommentService commentService) {
-        this.partyRepository = partyRepository;
-        this.userPartyRepository = userPartyRepository;
-        this.waiterRepository = waiterRepository;
-        this.userService = userService;
-        this.heartService = heartService;
-        this.commentService = commentService;
-    }
-
     public Party createParty(Party party, User user) {
         party.setUser(user);
         party.setPartyState(PartyState.RECRUITING);
         return partyRepository.save(party);
     }
 
-    // 역할에 따른 조회 - 파티장인 파티 검색
     private List<Party> findLeadingParty(Long userId) {
         return partyRepository.findByUserId(userId);
     }
 
-    // 역할에 따른 조회 - 파티원인 파티 검색
     private List<Party> findParticipatingParty(Long userId) {
 
         return userPartyRepository.findByUserId(userId).stream()
@@ -114,7 +105,6 @@ public class PartyService {
     }
 
     private void setMembers(List<Party> partyList) {
-        // getPartyMembers => partyId를 받아 파티장을 포함한 파티 전체 멤버를 리스트로 리턴
 
         partyList.stream()
                 .forEach(party -> party.setMemberList(findPartyMembers(party, true)));
@@ -208,7 +198,6 @@ public class PartyService {
         return partyRepository.save(foundParty);
     }
 
-    // 필요 예시 : 알림 창에서 파티 접근 -> 파티 삭제됨 -> 404 응답
     private Party findVerifiedParty(Long partyId) {
         Optional<Party> optionalParty = partyRepository.findById(partyId);
         Party party = optionalParty.orElseThrow(() -> new BusinessLogicException(ExceptionCode.PARTY_NOT_FOUND));

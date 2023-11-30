@@ -6,6 +6,7 @@ import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.util.Utility;
 import com.full_party.values.SignUpType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -23,15 +24,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 
+@RequiredArgsConstructor
 public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
     private final UserService userService;
     private final JwtTokenizer jwtTokenizer;
     private static SignUpType signUpType;
-
-    public OAuth2UserSuccessHandler(UserService userService, JwtTokenizer jwtTokenizer) {
-        this.userService = userService;
-        this.jwtTokenizer = jwtTokenizer;
-    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {

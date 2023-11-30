@@ -33,24 +33,17 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Component
+@RequiredArgsConstructor
 public class JwtVerificationFilter extends OncePerRequestFilter {
 
-    private final CustomAuthorityUtils customAuthorityUtils;
     private final UserDetailService userDetailService;
     private final JwtTokenizer jwtTokenizer;
 
-    public JwtVerificationFilter(CustomAuthorityUtils customAuthorityUtils, UserDetailService userDetailService, JwtTokenizer jwtTokenizer) {
-        this.customAuthorityUtils = customAuthorityUtils;
-        this.userDetailService = userDetailService;
-        this.jwtTokenizer = jwtTokenizer;
-    }
-
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
 
         String authorization = request.getHeader("Authorization");
 
-//        return authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer undefined") || authorization.equals("Bearer temp");
         return authorization == null || !authorization.startsWith("Bearer") || authorization.equals("Bearer temp");
     }
 
@@ -96,7 +89,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         String username = (String) claims.get("username");
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                (UserDetail) userDetailService.loadUserByUsername(username), // https://devjem.tistory.com/70
+                (UserDetail) userDetailService.loadUserByUsername(username),
                 null
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);

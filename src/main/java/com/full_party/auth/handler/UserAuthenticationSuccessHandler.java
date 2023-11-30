@@ -24,8 +24,6 @@ import java.net.URLEncoder;
 
 @Slf4j
 @Component
-//public class UserAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
 public class UserAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
@@ -33,7 +31,5 @@ public class UserAuthenticationSuccessHandler implements AuthenticationSuccessHa
 
         log.info("# Authenticated Successfully.");
 
-//        setDefaultTargetUrl("/auth/signin?error=false&errMsg=null");
-//        super.onAuthenticationSuccess(request, response, authentication);
     }
 }

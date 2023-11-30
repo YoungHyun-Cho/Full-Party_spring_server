@@ -48,7 +48,6 @@ public class SecurityConfiguration {
     private final UserService userService;
     private final UserDetailService userDetailService;
     private final JwtTokenizer jwtTokenizer;
-//    public static final String URL = "https://localhost:8080";
 
     public SecurityConfiguration(UserAuthenticationSuccessHandler userAuthenticationSuccessHandler, UserAuthenticationFailureHandler userAuthenticationFailureHandler, CustomAuthorityUtils customAuthorityUtils, @Lazy UserService userService, @Lazy UserDetailService userDetailService, JwtTokenizer jwtTokenizer) {
         this.userAuthenticationSuccessHandler = userAuthenticationSuccessHandler;
@@ -65,12 +64,7 @@ public class SecurityConfiguration {
                 .headers().frameOptions().sameOrigin()
                 .and()
                 .csrf().disable()
-//                .cors(Customizer.withDefaults())
-//                .cors()
-//                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and()
-//                .authorizeRequests().antMatchers("/").permitAll()
                 .and()
                 .formLogin().disable()
                 .httpBasic().disable()
@@ -91,17 +85,11 @@ public class SecurityConfiguration {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-//        corsConfiguration.setAllowCredentials(true);
-//        corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
-//        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE"));
-
         corsConfiguration.addAllowedOriginPattern("https://localhost:3000"); // 로컬 프론트에서 접근
         corsConfiguration.addAllowedOriginPattern("https://fullpartyspring.com"); // 배포 프론트에서 접근
         corsConfiguration.addAllowedOriginPattern("https://accounts.google.com");
 
-//        corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
-
-        corsConfiguration.setAllowCredentials(true); // 셋쿠키 사용하려면 클라이언트쪽에서도, 백엔드 쪽에서도 credential을 포함하도록 설정해야 함.
+        corsConfiguration.setAllowCredentials(true);
 
         corsConfiguration.addExposedHeader("Authorization");
         corsConfiguration.addExposedHeader("Refresh");
@@ -131,17 +119,12 @@ public class SecurityConfiguration {
 
             jwtAuthenticationFilter.setAuthenticationManager(authenticationManager);
 
-//            JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtTokenizer);
-//            jwtAuthenticationFilter.setFilterProcessesUrl("/v1/auth/**");
-
             jwtAuthenticationFilter.setRequiresAuthenticationRequestMatcher(authenticationFilterPath());
 
-
-//            jwtAuthenticationFilter.setAuthenticationSuccessHandler(new UserAuthenticationSuccessHandler());
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(userAuthenticationSuccessHandler);
             jwtAuthenticationFilter.setAuthenticationFailureHandler(userAuthenticationFailureHandler);
 
-            JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(customAuthorityUtils, userDetailService, jwtTokenizer);
+            JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(userDetailService, jwtTokenizer);
 
 
             builder.addFilter(corsFilter())
@@ -163,22 +146,3 @@ public class SecurityConfiguration {
         return new OrRequestMatcher(processingMatchers);
     }
 }
-
-
-
-// 인증 필터 무시 : https://skatpdnjs.tistory.com/m/74
-
-
-/*
-* jwtAuthenticationFilter.setFilterProcessesUrl("/v1/auth/**");
-*
-* 마이페이지 정보 수정 시 재인증을 위한 API /auth/verification을 커버하기 위해 auth로 들어오는 API 요청에 대해 모두 authenticationFilter 적용
-* 흐름
-* - /auth/verification으로 요청 전송
-* - authenticationFilter 거치며 인증 진행
-* - 그 과정에서 SecurityContextHolder에 Authentication 저장됨.
-* - AuthController에서 Authentication Principal을 받아서 RequestBody의 Password와 AuthenticationPrincipal의 Password를 비교
-* - 결과에 따라 성공/실패 상태 코드를 응답으로 전송
-*
-*
-* */

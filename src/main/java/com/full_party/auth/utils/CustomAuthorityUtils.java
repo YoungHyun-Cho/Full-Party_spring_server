@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class CustomAuthorityUtils {
+
     @Value("admin@gmail.com")
     private String adminMailAddress;
 

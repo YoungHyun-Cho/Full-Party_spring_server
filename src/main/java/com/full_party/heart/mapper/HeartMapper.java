@@ -12,10 +12,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface HeartMapper {
 
-//    @Mapping(target = "heartList", qualifiedByName = "heartListToDto")
-//    HeartResponseDto heartListToHeartResponseDto(List<Heart> heartList);
-
-//    @Named("heartListToDto")
     default HeartResponseDto partyListToHeartResponseDto(Boolean notificationBadge, List<PartyResponseDto> partyList) {
         return new HeartResponseDto(notificationBadge, partyList);
     }

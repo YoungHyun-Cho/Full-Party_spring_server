@@ -19,7 +19,3 @@ public class UserPatchResponseDto {
     private Date birth;
     private Gender gender;
 }
-
-/*
- * password는 뺌. -> 굳이 응답으로 전송 필요 없음.
- * */

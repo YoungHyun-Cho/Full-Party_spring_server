@@ -10,6 +10,7 @@ import com.full_party.party.service.PartyService;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.values.PartyState;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/hearts")
 public class HeartController {
 
@@ -29,15 +31,6 @@ public class HeartController {
     private final NotificationService notificationService;
     private final HeartMapper heartMapper;
     private final PartyMapper partyMapper;
-
-    public HeartController(HeartService heartService, UserService userService, PartyService partyService, NotificationService notificationService, HeartMapper heartMapper, PartyMapper partyMapper) {
-        this.heartService = heartService;
-        this.userService = userService;
-        this.partyService = partyService;
-        this.notificationService = notificationService;
-        this.heartMapper = heartMapper;
-        this.partyMapper = partyMapper;
-    }
 
     @PostMapping("/{party-id}")
     public ResponseEntity postHeart(@PathVariable("party-id") Long partyId,

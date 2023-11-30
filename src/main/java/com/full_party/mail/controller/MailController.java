@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/mails")
 @RequiredArgsConstructor
+@RequestMapping("/mails")
 public class MailController {
 
     private final MailService mailService;

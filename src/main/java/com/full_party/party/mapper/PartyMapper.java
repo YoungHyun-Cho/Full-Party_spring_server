@@ -26,8 +26,6 @@ public interface PartyMapper {
     @Mapping(source = "user", target = "userId", qualifiedByName = "userToUserId")
     PartyResponseDto partyToPartyResponseDto(Party party);
 
-    WaiterDto waiterToWaiterDto(Waiter waiter);
-
     @Named("TagListToStringList")
     default List<String> TagListToStringList(List<Tag> tagList) {
 

@@ -8,9 +8,4 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
-
-    List<Tag> findByPartyId(Long partyId);
-
-    @Query("SELECT t FROM Tag t WHERE t.value LIKE %?1%")
-    List<Tag> searchTagsByTagValue(String tagValue);
 }

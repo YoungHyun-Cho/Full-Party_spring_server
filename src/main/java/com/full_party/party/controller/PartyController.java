@@ -19,6 +19,7 @@ import com.full_party.util.Utility;
 import com.full_party.values.Level;
 import com.full_party.values.NotificationInfo;
 import com.full_party.values.PartyState;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/parties")
 public class PartyController {
 
@@ -44,60 +46,26 @@ public class PartyController {
     private final CommentMapper commentMapper;
     private static final String PARTY_DEFAULT_URL = "/parties";
 
-    public PartyController(PartyService partyService, TagService tagService, UserService userService, CommentService commentService, NotificationService notificationService, PartyMapper partyMapper, CommentMapper commentMapper) {
-        this.partyService = partyService;
-        this.tagService = tagService;
-        this.userService = userService;
-        this.commentService = commentService;
-        this.notificationService = notificationService;
-        this.partyMapper = partyMapper;
-        this.commentMapper = commentMapper;
-    }
-
     @PostMapping
     public ResponseEntity postParty(@Valid @RequestBody PartyRequestDto partyRequestDto,
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
-        try {
-            Party party = partyService.createParty(
-                    partyMapper.partyRequestDtoToParty(partyRequestDto),
-                    userService.findUser(userDetails.getUsername())
-            );
+        Party party = partyService.createParty(
+                partyMapper.partyRequestDtoToParty(partyRequestDto),
+                userService.findUser(userDetails.getUsername())
+        );
 
-            List<Tag> tagList = tagService.createTagList(party, partyRequestDto.getTags());
-            party.setTagList(tagList);
+        List<Tag> tagList = tagService.createTagList(party, partyRequestDto.getTags());
+        party.setTagList(tagList);
 
-            URI uri =
-                    UriComponentsBuilder
-                            .newInstance()
-                            .path(PARTY_DEFAULT_URL + "/{party-id}")
-                            .buildAndExpand(party.getId())
-                            .toUri();
+        URI uri =
+                UriComponentsBuilder
+                        .newInstance()
+                        .path(PARTY_DEFAULT_URL + "/{party-id}")
+                        .buildAndExpand(party.getId())
+                        .toUri();
 
-            return ResponseEntity.created(uri).build();
-        }
-        catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getCause());
-        }
-//        Party party = partyService.createParty(
-//                partyMapper.partyRequestDtoToParty(partyRequestDto),
-//                userService.findUser(userDetails.getUsername())
-//        );
-//
-//        List<Tag> tagList = tagService.createTagList(party, partyRequestDto.getTags());
-//        party.setTagList(tagList);
-//
-//        URI uri =
-//                UriComponentsBuilder
-//                        .newInstance()
-//                        .path(PARTY_DEFAULT_URL + "/{party-id}")
-//                        .buildAndExpand(party.getId())
-//                        .toUri();
-
-//        return ResponseEntity.created(uri).build();
-
-        return null;
+        return ResponseEntity.created(uri).build();
     }
 
     @GetMapping
@@ -143,13 +111,11 @@ public class PartyController {
         return new ResponseEntity(partyResponseDto, HttpStatus.OK);
     }
 
-    // 파티장 : 파티 삭제
     @DeleteMapping("/{party-id}")
     public ResponseEntity deleteParty(@PathVariable("party-id") Long partyId) {
 
         Party party = partyService.findParty(partyId);
 
-        // ‼️ 파티원
         List<Party.PartyMember> partyMembers = partyService.findPartyMembers(party, true);
 
         partyMembers.stream()
@@ -166,9 +132,6 @@ public class PartyController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    // 🟥 여기까지 기존 quest controller
-
-    // 참여 신청
     @PostMapping("/{party-id}/application")
     public ResponseEntity applyParty(@PathVariable("party-id") Long partyId,
                                      @AuthenticationPrincipal UserDetails userDetails,
@@ -177,7 +140,6 @@ public class PartyController {
         Long userId = Utility.getUserId(userDetails);
         partyService.createWaiter(userId, partyId, waiterDto.getMessage());
 
-        // ‼️ 파티장
         notificationService.createNotification(
                 partyService.findParty(partyId).getUser(),
                 partyService.findParty(partyId),
@@ -188,7 +150,6 @@ public class PartyController {
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
-    // 참여 메세지 수정
     @PatchMapping("/{party-id}/users/{user-id}/message")
     public ResponseEntity patchMessage(@PathVariable("party-id") Long partyId,
                                        @PathVariable("user-id") Long userId,
@@ -200,14 +161,12 @@ public class PartyController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    // 파티 참여 승인 🟥 Header userId -> 파티장 본인 -> RequestBody의 userId가 승인 대상임.
     @PostMapping("/{party-id}/participation/{user-id}")
     public ResponseEntity acceptUser(@PathVariable("party-id") Long partyId,
                                      @PathVariable("user-id") Long userId) {
 
         partyService.createUserParty(userId, partyId);
 
-        // ‼️ 파티원
         notificationService.createNotification(
                 userService.findUser(userId),
                 partyService.findParty(partyId),
@@ -218,15 +177,12 @@ public class PartyController {
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
-    // 참여 신청 취소 및 거절 🟥 Header userId -> 파티장 본인일 수도 있고, 파티원일 수도 있음.
-    // 파티장이 거절 -> 알림에서 거절당했다고 표기 필요
     @DeleteMapping("/{party-id}/application/{user-id}")
     public ResponseEntity deleteApplication(@PathVariable("party-id") Long partyId,
                                             @PathVariable("user-id") Long userId,
                                             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // ‼️ 파티장 || 파티원
-        if (userId == Utility.getUserId(userDetails)) { // 취소
+        if (userId == Utility.getUserId(userDetails)) {
 
             Party party = partyService.findParty(partyId);
 
@@ -238,7 +194,7 @@ public class PartyController {
             );
 
         }
-        else { // 거절
+        else {
 
             notificationService.createNotification(
                     userService.findUser(userId),
@@ -253,16 +209,11 @@ public class PartyController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    // 파티 탈퇴 및 강퇴 🟥 Header userId -> 파티장 본인일 수도 있고, 파티원일 수도 있음.
     @DeleteMapping("/{party-id}/participation/{user-id}")
     public ResponseEntity withdrawParty(@PathVariable("party-id") Long partyId,
                                         @PathVariable("user-id") Long userId,
                                         @AuthenticationPrincipal UserDetails userDetails) {
 
-        // userDetails의 userId와 Path의 UserID가 일치하면 탈퇴
-        // 일치하지 않으면 강퇴
-
-        // ‼️ 파티장 || 파티원
         if (userId == Utility.getUserId(userDetails)) {
 
             Party party = partyService.findParty(partyId);
@@ -289,7 +240,6 @@ public class PartyController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    // 파티 정보 수정
     @PatchMapping("/{party-id}")
     public ResponseEntity patchParty(@PathVariable("party-id") Long partyId,
                                      @Valid @RequestBody PartyRequestDto partyRequestDto) {
@@ -307,7 +257,6 @@ public class PartyController {
         return new ResponseEntity(partyMapper.partyToPartyResponseDto(updatedParty), HttpStatus.OK);
     }
 
-    // 파티 상태 변경
     @PatchMapping("/{party-id}/state")
     public ResponseEntity patchPartyState(@PathVariable("party-id") Long partyId,
                                           @RequestParam("party_state") String partyStateStr) {
@@ -320,8 +269,9 @@ public class PartyController {
         if (partyState == PartyState.FULL_PARTY) notificationInfo = NotificationInfo.FULL_PARTY;
         else if (partyState == PartyState.RECRUITING) notificationInfo = NotificationInfo.RE_PARTY;
         else if (partyState == PartyState.COMPLETED) {
+
             notificationInfo = NotificationInfo.COMPLETE;
-            // 파티원에게만 리뷰 요청 전송
+
             partyService.findPartyMembers(party, false).stream()
                     .forEach(partyMember -> notificationService.createNotification(
                                     userService.findUser(partyMember.getId()),
@@ -347,7 +297,6 @@ public class PartyController {
 
     }
 
-    // 파티원 리뷰
     @PostMapping("/{party-id}/review")
     public ResponseEntity postReview(@PathVariable("party-id") Long partyId,
                                      @AuthenticationPrincipal UserDetails userDetails,

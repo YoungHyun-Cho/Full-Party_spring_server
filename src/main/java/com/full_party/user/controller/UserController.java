@@ -75,7 +75,6 @@ public class UserController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    // 마이페이지 정보 제공
     @GetMapping("/{user-id}")
     public ResponseEntity getUserInfo(@PathVariable("user-id") Long userId) {
 
@@ -93,7 +92,6 @@ public class UserController {
         return new ResponseEntity(userBasicResponseDto, HttpStatus.OK);
     }
 
-    // 유저 상세 정보 조회
     @GetMapping("/{user-id}/details")
     public ResponseEntity getUserDetailInfo(@PathVariable("user-id") Long userId) {
 

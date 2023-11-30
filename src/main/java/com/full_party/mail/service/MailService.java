@@ -1,6 +1,7 @@
 package com.full_party.mail.service;
 
 import com.full_party.mail.dto.MailDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -9,15 +10,12 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 @Service
+@RequiredArgsConstructor
 public class MailService {
 
     private final JavaMailSender javaMailSender;
     private static final String SENDER_EMAIL = "fullpartyspring@gmail.com";
     private static Integer number;
-
-    public MailService(JavaMailSender javaMailSender) {
-        this.javaMailSender = javaMailSender;
-    }
 
     private static void createNumber() {
         number = (int)(Math.random() * 90000) + 100000;
