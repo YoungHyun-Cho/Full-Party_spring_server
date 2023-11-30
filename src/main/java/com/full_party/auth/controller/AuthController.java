@@ -8,6 +8,7 @@ import com.full_party.util.Utility;
 import com.full_party.values.SignUpType;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,18 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
     private final UserMapper userMapper;
-
-    public AuthController(AuthService authService, UserService userService, UserMapper userMapper) {
-        this.authService = authService;
-        this.userService = userService;
-        this.userMapper = userMapper;
-    }
 
     @PostMapping("/signin")
     public ResponseEntity signIn(@AuthenticationPrincipal UserDetails userDetails) {
@@ -40,21 +36,14 @@ public class AuthController {
     @GetMapping("/refresh")
     public ResponseEntity refresh(@RequestHeader("Refresh") String refreshToken) {
 
-        System.out.println("🟥 Refresh");
+        Map<String, String> tokenMap = authService.reIssueTokens(refreshToken);
 
-        try {
-            Map<String, String> tokenMap = authService.reIssueTokens(refreshToken);
+        HttpHeaders headers = Utility.setCookie(
+                tokenMap.get("accessToken"),
+                tokenMap.get("refreshToken")
+        );
 
-            HttpHeaders headers = Utility.setCookie(
-                    tokenMap.get("accessToken"),
-                    tokenMap.get("refreshToken")
-            );
-
-            return ResponseEntity.ok().headers(headers).build();
-        }
-        catch (ExpiredJwtException | MalformedJwtException e) {
-            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
-        }
+        return ResponseEntity.ok().headers(headers).build();
     }
 
     @PostMapping("/signout")

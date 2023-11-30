@@ -33,7 +33,7 @@ public class MailService {
                 "          <table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" +
                 "            <tr>\n" +
                 "              <td align=\"center\"style=\"padding: 40px 0 10px 0;\">\n" +
-                "                <img src=\"https://fullpartyspringimageserver.s3.ap-northeast-2.amazonaws.com/defaultProfile.png\" alt=\"fullParty Thumbnail\" width=\"500\" height=\"500\" style=\"display: block;\" />\n" +
+                "                <img src=\"https://fullpartyspringimageserver.s3.ap-northeast-2.amazonaws.com/defaultProfile.png\" alt=\"FullParty Thumbnail\" width=\"500\" height=\"500\" style=\"display: block;\" />\n" +
                 "             </td>\n" +
                 "            </tr>\n" +
                 "            <tr>\n" +

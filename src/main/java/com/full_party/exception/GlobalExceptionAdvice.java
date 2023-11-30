@@ -1,5 +1,8 @@
 package com.full_party.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -25,6 +28,14 @@ public class GlobalExceptionAdvice {
     public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 
         ErrorResponse response = new ErrorResponse(400, e.getFieldError().getDefaultMessage());
+        return response;
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleJwtException(JwtException e) {
+
+        ErrorResponse response = new ErrorResponse(401, e.getMessage());
         return response;
     }
 }
