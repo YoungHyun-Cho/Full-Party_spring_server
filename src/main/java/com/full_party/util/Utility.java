@@ -1,14 +1,11 @@
 package com.full_party.util;
 
 import com.full_party.auth.userdetails.UserDetail;
-import com.full_party.config.EnvConfiguration;
+import com.full_party._config.EnvConfiguration;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class Utility {
-
-//    private static final String DOMAIN = "localhost";
-//    private static final String DOMAIN = ".fullpartyspring.com";
 
     public static Long getUserId(UserDetails userDetails) {
         return ((UserDetail) userDetails).getId();
@@ -17,8 +14,7 @@ public class Utility {
     public static ResponseCookie createCookie(String name, String value, Integer minutes) {
 
         return ResponseCookie.from(name, value)
-//                .domain(DOMAIN)
-                .domain(EnvConfiguration.getValues().getDomain())
+                .domain(EnvConfiguration.getDomain())
                 .path("/")
                 .sameSite("Lax")
                 .maxAge(minutes * 60)

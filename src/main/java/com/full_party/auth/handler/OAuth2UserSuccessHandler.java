@@ -1,15 +1,13 @@
 package com.full_party.auth.handler;
 
 import com.full_party.auth.jwt.JwtTokenizer;
-import com.full_party.config.EnvConfiguration;
+import com.full_party._config.EnvConfiguration;
 import com.full_party.exception.BusinessLogicException;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
-import com.full_party.util.Utility;
 import com.full_party.values.SignUpType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -20,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -105,11 +102,8 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         return UriComponentsBuilder
                 .newInstance()
                 .scheme("https")
-//                .host("localhost")
-//                .port(3000)
-//                .host("fullpartyspring.com")
-                .host(EnvConfiguration.getValues().getHost())
-                .port(EnvConfiguration.getValues().getPort())
+                .host(EnvConfiguration.getHost())
+                .port(EnvConfiguration.getPort())
                 .path("/auth")
                 .queryParams(queryParams)
                 .build()
