@@ -1,6 +1,7 @@
 package com.full_party.auth.handler;
 
 import com.full_party.auth.jwt.JwtTokenizer;
+import com.full_party.config.EnvConfiguration;
 import com.full_party.exception.BusinessLogicException;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
@@ -106,7 +107,9 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
                 .scheme("https")
 //                .host("localhost")
 //                .port(3000)
-                .host("fullpartyspring.com")
+//                .host("fullpartyspring.com")
+                .host(EnvConfiguration.getValues().getHost())
+                .port(EnvConfiguration.getValues().getPort())
                 .path("/auth")
                 .queryParams(queryParams)
                 .build()
