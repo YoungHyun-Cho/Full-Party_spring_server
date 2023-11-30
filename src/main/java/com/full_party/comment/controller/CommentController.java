@@ -54,13 +54,14 @@ public class CommentController {
     }
 
     // 대댓글 등록
-    @PostMapping("{comment-id}/reply")
+    @PostMapping("{comment-id}/replies")
     public ResponseEntity postReply(@Valid @RequestBody ReplyPostDto replyPostDto,
                                     @PathVariable("comment-id") Long commentId,
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
         Long userId = Utility.getUserId(userDetails);
         replyPostDto.setUserId(userId);
+        replyPostDto.setCommentId(commentId);
 
         Reply reply = commentService.createReply(commentMapper.replyPostDtoToReply(replyPostDto));
 

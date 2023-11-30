@@ -58,22 +58,46 @@ public class PartyController {
     public ResponseEntity postParty(@Valid @RequestBody PartyRequestDto partyRequestDto,
                                     @AuthenticationPrincipal UserDetails userDetails) {
 
-        Party party = partyService.createParty(
-                partyMapper.partyRequestDtoToParty(partyRequestDto),
-                userService.findUser(userDetails.getUsername())
-        );
+        try {
+            Party party = partyService.createParty(
+                    partyMapper.partyRequestDtoToParty(partyRequestDto),
+                    userService.findUser(userDetails.getUsername())
+            );
 
-        List<Tag> tagList = tagService.createTagList(party, partyRequestDto.getTags());
-        party.setTagList(tagList);
+            List<Tag> tagList = tagService.createTagList(party, partyRequestDto.getTags());
+            party.setTagList(tagList);
 
-        URI uri =
-                UriComponentsBuilder
-                        .newInstance()
-                        .path(PARTY_DEFAULT_URL + "/{party-id}")
-                        .buildAndExpand(party.getId())
-                        .toUri();
+            URI uri =
+                    UriComponentsBuilder
+                            .newInstance()
+                            .path(PARTY_DEFAULT_URL + "/{party-id}")
+                            .buildAndExpand(party.getId())
+                            .toUri();
 
-        return ResponseEntity.created(uri).build();
+            return ResponseEntity.created(uri).build();
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getCause());
+        }
+//        Party party = partyService.createParty(
+//                partyMapper.partyRequestDtoToParty(partyRequestDto),
+//                userService.findUser(userDetails.getUsername())
+//        );
+//
+//        List<Tag> tagList = tagService.createTagList(party, partyRequestDto.getTags());
+//        party.setTagList(tagList);
+//
+//        URI uri =
+//                UriComponentsBuilder
+//                        .newInstance()
+//                        .path(PARTY_DEFAULT_URL + "/{party-id}")
+//                        .buildAndExpand(party.getId())
+//                        .toUri();
+
+//        return ResponseEntity.created(uri).build();
+
+        return null;
     }
 
     @GetMapping

@@ -38,16 +38,6 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         Map<String, Object> attributes= oAuth2User.getAttributes();
-//
-//         test
-
-//        Set<Map.Entry<String, Object>> attributesSet = oAuth2User.getAttributes().entrySet();
-//
-//        for (Map.Entry<String, Object> entry : attributesSet) {
-//            System.out.println("🔴" + entry.getKey() + " : " + entry.getValue());
-//        }
-
-        // test
 
         User user;
 
@@ -116,9 +106,9 @@ public class OAuth2UserSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         return UriComponentsBuilder
                 .newInstance()
                 .scheme("https")
-                .host("localhost")
-                .port(3000)
-//                .host("fullpartyspring.com")
+//                .host("localhost")
+//                .port(3000)
+                .host("fullpartyspring.com")
                 .path("/auth")
                 .queryParams(queryParams)
                 .build()
