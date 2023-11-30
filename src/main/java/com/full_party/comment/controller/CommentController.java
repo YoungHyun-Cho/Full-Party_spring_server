@@ -9,8 +9,10 @@ import com.full_party.comment.service.CommentService;
 import com.full_party.notification.service.NotificationService;
 import com.full_party.party.entity.Party;
 import com.full_party.party.service.PartyService;
+import com.full_party.user.service.UserService;
 import com.full_party.util.Utility;
 import com.full_party.values.NotificationInfo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,20 +22,15 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/comments")
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserService userService;
     private final CommentMapper commentMapper;
     private final NotificationService notificationService;
     private final PartyService partyService;
-
-    public CommentController(CommentService commentService, CommentMapper commentMapper, NotificationService notificationService, PartyService partyService) {
-        this.commentService = commentService;
-        this.commentMapper = commentMapper;
-        this.notificationService = notificationService;
-        this.partyService = partyService;
-    }
 
     // 댓글 등록
     @PostMapping
@@ -50,7 +47,7 @@ public class CommentController {
                 party.getUser(),
                 party,
                 NotificationInfo.COMMENT,
-                userId
+                userService.findUser(userId)
         );
 
         return new ResponseEntity(commentMapper.mapToCommentResponseDto(comment), HttpStatus.CREATED);
@@ -72,7 +69,7 @@ public class CommentController {
                 comment.getUser(),
                 comment.getParty(),
                 NotificationInfo.REPLY,
-                userId
+                userService.findUser(userId)
         );
 
         return new ResponseEntity(commentMapper.mapToCommentResponseDto(reply), HttpStatus.CREATED);

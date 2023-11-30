@@ -52,6 +52,9 @@ public class User extends Auditable {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Notification> notifications = new ArrayList<>();
 
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.REMOVE)
+    private List<Notification> notificationsAsSubject = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Waiter> waiters = new ArrayList<>();
 

@@ -32,7 +32,7 @@ public class Comment extends Auditable implements QnA {
     @JoinColumn(name = "PARTY_ID")
     private Party party;
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
     private List<Reply> replies = new ArrayList<>();
 
     @Column(nullable = false)

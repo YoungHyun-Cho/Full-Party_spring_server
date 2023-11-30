@@ -28,6 +28,10 @@ public class Notification extends Auditable {
     @JoinColumn(name = "PARTY_ID")
     private Party party;
 
+    @ManyToOne
+    @JoinColumn(name = "SUBJECT_ID")
+    private User subject;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private NotificationInfo notificationInfo;
@@ -35,13 +39,10 @@ public class Notification extends Auditable {
     @Column(nullable = false)
     private Boolean isRead = false;
 
-    @Column
-    private Long subjectId;
-
-    public Notification(User user, Party party, NotificationInfo notificationType, Long subjectId) {
+    public Notification(User user, Party party, NotificationInfo notificationType, User subject) {
         this.user = user;
         this.party = party;
         this.notificationInfo = notificationType;
-        this.subjectId = subjectId;
+        this.subject = subject;
     }
 }

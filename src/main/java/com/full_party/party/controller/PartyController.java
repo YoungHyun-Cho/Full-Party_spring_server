@@ -54,8 +54,6 @@ public class PartyController {
         this.commentMapper = commentMapper;
     }
 
-    // # 기본 CRUD
-    // 파티장 : 퀘스트 생성
     @PostMapping
     public ResponseEntity postParty(@Valid @RequestBody PartyRequestDto partyRequestDto,
                                     @AuthenticationPrincipal UserDetails userDetails) {
@@ -78,7 +76,6 @@ public class PartyController {
         return ResponseEntity.created(uri).build();
     }
 
-    // 공통 : 내 파티 및 지역 파티 목록 조회
     @GetMapping
     public ResponseEntity getRelatedPartyList(@RequestParam(name = "region") String region,
                                               @AuthenticationPrincipal UserDetails userDetails) {
@@ -96,13 +93,14 @@ public class PartyController {
         );
     }
 
-    // 공통 : 파티 정보 조회
     @GetMapping("/{party-id}")
     public ResponseEntity getPartyInfo(@PathVariable("party-id") Long partyId,
                                        @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = userService.findUser(userDetails.getUsername());
         Party party = partyService.findParty(user.getId(), partyId);
+
+        if (party.getPartyState() == PartyState.DISMISSED) throw new BusinessLogicException(ExceptionCode.PARTY_NOT_FOUND);
 
         PartyResponseDto partyResponseDto = partyMapper.partyToPartyResponseDto(party);
 
@@ -160,7 +158,7 @@ public class PartyController {
                 partyService.findParty(partyId).getUser(),
                 partyService.findParty(partyId),
                 NotificationInfo.APPLY,
-                userId
+                userService.findUser(userId)
         );
 
         return new ResponseEntity(HttpStatus.CREATED);
@@ -176,18 +174,12 @@ public class PartyController {
         partyService.updateMessage(userId, partyId, partyMemberDto.getMessage());
 
         return new ResponseEntity(HttpStatus.OK);
-
-//        Waiter waiter = partyService.updateWaiterMessage(partyMapper.waiterDtoToWaiter(partyMemberDto));
-//
-//        return new ResponseEntity(partyMapper.waiterToWaiterDto(waiter), HttpStatus.OK);
     }
 
     // 파티 참여 승인 🟥 Header userId -> 파티장 본인 -> RequestBody의 userId가 승인 대상임.
     @PostMapping("/{party-id}/participation/{user-id}")
     public ResponseEntity acceptUser(@PathVariable("party-id") Long partyId,
                                      @PathVariable("user-id") Long userId) {
-
-//        partyService.createUserParty(partyApplyDto.getUserId(), partyApplyDto.getPartyId());
 
         partyService.createUserParty(userId, partyId);
 
@@ -218,7 +210,7 @@ public class PartyController {
                     party.getUser(),
                     party,
                     NotificationInfo.CANCEL,
-                    userId
+                    userService.findUser(userId)
             );
 
         }
@@ -255,7 +247,7 @@ public class PartyController {
                     party.getUser(),
                     party,
                     NotificationInfo.QUIT,
-                    userId
+                    userService.findUser(userId)
             );
 
         }

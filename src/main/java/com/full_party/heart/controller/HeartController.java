@@ -9,6 +9,7 @@ import com.full_party.party.mapper.PartyMapper;
 import com.full_party.party.service.PartyService;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
+import com.full_party.values.PartyState;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -58,6 +59,7 @@ public class HeartController {
 
         List<PartyResponseDto> parties = heartList.stream()
                 .map(heart -> partyService.findParty(user.getId(), heart.getParty().getId()))
+                .filter(party -> party.getPartyState() != PartyState.DISMISSED)
                 .map(party -> partyMapper.partyToPartyResponseDto(party))
                 .collect(Collectors.toList());
 

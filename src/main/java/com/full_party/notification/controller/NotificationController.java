@@ -28,10 +28,6 @@ public class NotificationController {
     public ResponseEntity getNotifications(@AuthenticationPrincipal UserDetails userDetails) {
 
         List<Notification> notifications = notificationService.findAll(Utility.getUserId(userDetails));
-
-        notifications.stream()
-                .forEach(System.out::println);
-
         NotificationListDto notificationListDto = notificationMapper.mapToNotificationDtoList(notifications);
         notificationService.changeIsRead(notifications);
 

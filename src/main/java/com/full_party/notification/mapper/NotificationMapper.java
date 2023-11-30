@@ -6,23 +6,17 @@ import com.full_party.notification.entity.Notification;
 import com.full_party.party.service.PartyService;
 import com.full_party.user.service.UserService;
 import com.full_party.values.NotificationInfo;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-public class NotificationMapper {
+@Mapper(componentModel = "spring")
+public interface NotificationMapper {
 
-    private final UserService userService;
-    private final PartyService partyService;
-
-    public NotificationMapper(UserService userService, PartyService partyService) {
-        this.userService = userService;
-        this.partyService = partyService;
-    }
-
-    public NotificationDto mapToNotificationDto(Notification notification) {
+    default NotificationDto mapToNotificationDto(Notification notification) {
 
         String subject;
         String content;
@@ -33,16 +27,13 @@ public class NotificationMapper {
             content = notificationInfo.getContent();
         }
         else if (notificationInfo.getType() == NotificationInfo.Type.PARTY) {
-            subject = partyService.findParty(notification.getParty().getId()).getName(); // 아래 설명 참고
+            subject = notification.getParty().getName();
             content = notificationInfo.getContent();
         }
         else {
-            subject = partyService.findParty(notification.getParty().getId()).getName(); // 아래 설명 참고
-            content = userService.findUser(notification.getSubjectId()).getUserName() + notificationInfo.getContent(); // 아래 설명 참고
+            subject = notification.getParty().getName();
+            content = notification.getSubject().getUserName() + notificationInfo.getContent();
         }
-
-        System.out.println("subject = " + subject);
-        System.out.println("content = " + content);
 
         return new NotificationDto(
                 subject, content, notificationInfo.getType().toString(), notificationInfo.getLabel(),
@@ -50,7 +41,7 @@ public class NotificationMapper {
         );
     }
 
-    public NotificationListDto mapToNotificationDtoList(List<Notification> notifications) {
+    default NotificationListDto mapToNotificationDtoList(List<Notification> notifications) {
 
         return new NotificationListDto(
                 notifications.stream()

@@ -309,10 +309,8 @@ public class PartyService {
 
     public void changeIsReviewed(User user, Party party, Integer resultsLength) {
 
-        // 파티장은 userParty X -> 파티원만 체크
         if (party.getUser().getId() != user.getId()) {
 
-            // 자신을 제외한 파티원을 모두 리뷰했는지 체크
             if (userPartyRepository.findByPartyId(party.getId()).size() == resultsLength) {
                 UserParty foundUserParty = findUserParty(user.getId(), party.getId());
                 foundUserParty.setIsReviewed(true);
@@ -325,11 +323,7 @@ public class PartyService {
 
         if (party.getPartyState() == PartyState.COMPLETED && party.getUser().getId() == user.getId()) return true;
 
-        try {
-            return findUserParty(user.getId(), party.getId()).getIsReviewed();
-        }
-        catch (BusinessLogicException e) {
-            return false;
-        }
+        try { return findUserParty(user.getId(), party.getId()).getIsReviewed(); }
+        catch (BusinessLogicException e) { return false; }
     }
 }

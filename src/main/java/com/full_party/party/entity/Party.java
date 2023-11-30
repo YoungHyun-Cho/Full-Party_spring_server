@@ -3,6 +3,7 @@ package com.full_party.party.entity;
 import com.full_party.audit.Auditable;
 import com.full_party.comment.entity.Comment;
 import com.full_party.heart.entity.Heart;
+import com.full_party.notification.entity.Notification;
 import com.full_party.tag.entity.Tag;
 import com.full_party.user.entity.User;
 import com.full_party.values.Coordinates;
@@ -12,8 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -73,24 +72,26 @@ public class Party extends Auditable {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "party", cascade = CascadeType.REMOVE)
     private List<Tag> tagList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "party", cascade = CascadeType.REMOVE)
     private List<UserParty> userParties = new ArrayList<>();
 
-    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "party", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "party", cascade = CascadeType.REMOVE)
     private List<Heart> hearts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "party", cascade = CascadeType.REMOVE)
     private List<Waiter> waiters = new ArrayList<>();
 
+    @OneToMany(mappedBy = "party", cascade = CascadeType.REMOVE)
+    private List<Notification> notifications = new ArrayList<>();
+
     @Transient
-    private Boolean isHeart; // 임시 값 저장을 위한 필드 -> transient
+    private Boolean isHeart;
 
     @Transient
     private Boolean isReviewed;
