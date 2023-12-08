@@ -41,11 +41,16 @@ public class TagService {
         tagRepository.delete(tag);
     }
 
-    public List<Tag> updateTagList(Party party, List<String> newTagStrList) {
-
+    public void deleteAllTag(Party party) {
         party.getTagList().stream()
                 .forEach(tag -> deleteTag(tag));
-
-        return createTagList(party, newTagStrList);
     }
+
+//    public List<Tag> updateTagList(Party party, List<String> newTagStrList) {
+
+//        party.getTagList().stream()
+//                .forEach(tag -> deleteTag(tag));
+
+//        return createTagList(party, newTagStrList);
+//    }
  }

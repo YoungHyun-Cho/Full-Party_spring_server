@@ -246,13 +246,10 @@ public class PartyController {
 
         partyRequestDto.setId(partyId);
 
-        Party requestedParty = partyMapper.partyRequestDtoToParty(partyRequestDto);
-
-        List<Tag> newTagList = tagService.updateTagList(requestedParty, partyRequestDto.getTags());
-
-        requestedParty.setTagList(newTagList);
-
-        Party updatedParty = partyService.updateParty(requestedParty);
+        Party updatedParty = partyService.updateParty(
+                partyMapper.partyRequestDtoToParty(partyRequestDto),
+                partyRequestDto.getTags()
+        );
 
         return new ResponseEntity(partyMapper.partyToPartyResponseDto(updatedParty), HttpStatus.OK);
     }

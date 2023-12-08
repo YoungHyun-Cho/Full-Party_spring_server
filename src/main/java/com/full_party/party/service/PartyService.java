@@ -10,6 +10,8 @@ import com.full_party.party.entity.Waiter;
 import com.full_party.party.repository.PartyRepository;
 import com.full_party.party.repository.UserPartyRepository;
 import com.full_party.party.repository.WaiterRepository;
+import com.full_party.tag.entity.Tag;
+import com.full_party.tag.service.TagService;
 import com.full_party.user.entity.User;
 import com.full_party.user.service.UserService;
 import com.full_party.values.PartyState;
@@ -24,12 +26,13 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class PartyService {
+
     private final PartyRepository partyRepository;
     private final UserPartyRepository userPartyRepository;
     private final WaiterRepository waiterRepository;
     private final UserService userService;
     private final HeartService heartService;
-    private final CommentService commentService;
+    private final TagService tagService;
 
     public Party createParty(Party party, User user) {
         party.setUser(user);
@@ -180,9 +183,13 @@ public class PartyService {
                 .collect(Collectors.toList());
     }
 
-    public Party updateParty(Party party) {
+    public Party updateParty(Party party, List<String> tags) {
 
         Party foundParty = findVerifiedParty(party.getId());
+
+        tagService.deleteAllTag(foundParty);
+
+        party.setTagList(tagService.createTagList(party, tags));
 
         Party updatedParty = new Party(foundParty, party);
 
