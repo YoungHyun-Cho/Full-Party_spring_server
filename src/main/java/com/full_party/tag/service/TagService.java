@@ -45,12 +45,4 @@ public class TagService {
         party.getTagList().stream()
                 .forEach(tag -> deleteTag(tag));
     }
-
-//    public List<Tag> updateTagList(Party party, List<String> newTagStrList) {
-
-//        party.getTagList().stream()
-//                .forEach(tag -> deleteTag(tag));
-
-//        return createTagList(party, newTagStrList);
-//    }
  }
