@@ -11,7 +11,6 @@ import com.full_party.domain.user.service.UserService;
 import com.full_party.global.exception.BusinessLogicException;
 import com.full_party.global.exception.ExceptionCode;
 import com.full_party.domain.notification.service.NotificationService;
-import com.full_party.party.dto.*;
 import com.full_party.domain.party.mapper.PartyMapper;
 import com.full_party.domain.party.service.PartyService;
 import com.full_party.domain.tag.entity.Tag;
@@ -154,7 +153,6 @@ public class PartyController {
     @PatchMapping("/{party-id}/users/{user-id}/message")
     public ResponseEntity patchMessage(@PathVariable("party-id") Long partyId,
                                        @PathVariable("user-id") Long userId,
-                                       @AuthenticationPrincipal UserDetails userDetails,
                                        @RequestBody PartyMemberDto partyMemberDto) {
 
         partyService.updateMessage(userId, partyId, partyMemberDto.getMessage());
@@ -257,7 +255,7 @@ public class PartyController {
 
     @PatchMapping("/{party-id}/state")
     public ResponseEntity patchPartyState(@PathVariable("party-id") Long partyId,
-                                          @RequestParam("party_state") String partyStateStr) {
+                                          @RequestParam("party-state") String partyStateStr) {
 
         PartyState partyState = PartyState.fromString(partyStateStr);
 

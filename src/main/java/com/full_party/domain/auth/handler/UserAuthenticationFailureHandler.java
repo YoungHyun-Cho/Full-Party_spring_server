@@ -1,5 +1,6 @@
 package com.full_party.domain.auth.handler;
 
+import com.full_party.global.exception.ExceptionCode;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -28,8 +29,8 @@ public class UserAuthenticationFailureHandler extends SimpleUrlAuthenticationFai
         String errorMessage;
 
         if (exception instanceof BadCredentialsException ||
-            exception instanceof InternalAuthenticationServiceException) errorMessage = "User Not Found";
-        else errorMessage = "Internal Server Error"; // 예외 처리 구현 시 반영 필요
+            exception instanceof InternalAuthenticationServiceException) errorMessage = ExceptionCode.USER_NOT_FOUND.getMessage();
+        else errorMessage = ExceptionCode.INTERNAL_SERVER_ERROR.getMessage();
 
         errorMessage = URLEncoder.encode(errorMessage, "UTF-8");
         setDefaultFailureUrl("/auth/error?errMsg=" + errorMessage);

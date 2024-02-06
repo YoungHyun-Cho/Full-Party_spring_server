@@ -5,7 +5,6 @@ import com.full_party.domain.user.dto.UserDetailResponseDto;
 import com.full_party.domain.user.dto.UserPatchDto;
 import com.full_party.domain.user.dto.UserPostDto;
 import com.full_party.domain.user.entity.User;
-import com.full_party.user.dto.*;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

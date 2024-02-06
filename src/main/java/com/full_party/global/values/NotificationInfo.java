@@ -54,12 +54,4 @@ public enum NotificationInfo {
             return description;
         }
     }
-
-//    @JsonCreator
-//    public static NotificationInfo fromString(String value) {
-//        for (NotificationInfo notificationInfo : NotificationInfo.values()) {
-//            if (notificationInfo.type.equalsIgnoreCase(value)) return notificationInfo;
-//        }
-//        throw new IllegalArgumentException("Invalid NotificationType: " + value); // 추후 예외 처리 필요
-//    }
 }

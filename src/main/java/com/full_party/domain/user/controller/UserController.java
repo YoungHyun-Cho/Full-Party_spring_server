@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @PostMapping("/name")
-    public ResponseEntity checkUserName(@RequestParam("user_name") String userName) {
+    public ResponseEntity checkUserName(@RequestParam("user-name") String userName) {
 
         userService.verifyExistsUserName(userName);
 

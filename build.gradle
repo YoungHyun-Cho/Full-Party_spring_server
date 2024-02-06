@@ -41,6 +41,6 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient'
 }
 
-tasks.named('test') {
+test {
     useJUnitPlatform()
 }

@@ -11,7 +11,8 @@ public enum ExceptionCode {
     PARTY_NOT_FOUND(404, "Party Not Found"),
     WAITER_NOT_FOUND(404, "Waiter Not Found"),
     USER_PARTY_NOT_FOUND(404, "User Party Not Found"),
-    PARTY_STATE_NOT_FOUND(404, "Party State Not Found");
+    PARTY_STATE_NOT_FOUND(404, "Party State Not Found"),
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 
     @Getter
     private Integer status;

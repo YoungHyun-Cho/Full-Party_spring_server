@@ -7,7 +7,6 @@ public enum SignUpType {
     NORMAL("normal"),
     KAKAO("kakao"),
     GOOGLE("google"),
-    NAVER("naver"),
     GUEST("guest");
 
     private String type;

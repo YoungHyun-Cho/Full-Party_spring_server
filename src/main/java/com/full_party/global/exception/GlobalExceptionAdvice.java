@@ -8,27 +8,36 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
+
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
 
     @ExceptionHandler
     public ResponseEntity handleBusinessLogicException(BusinessLogicException e) {
-        return new ResponseEntity(HttpStatus.valueOf(e.getExceptionCode().getStatus()));
+
+        Integer status = e.getExceptionCode().getStatus();
+        return new ResponseEntity(new ErrorResponse(status, e.getMessage()), HttpStatus.valueOf(status));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 
-        ErrorResponse response = new ErrorResponse(400, e.getFieldError().getDefaultMessage());
-        return response;
+        return new ErrorResponse(400, e.getFieldError().getDefaultMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConstraintViolationException(ConstraintViolationException e) {
+
+        return new ErrorResponse(400, e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleJwtException(JwtException e) {
 
-        ErrorResponse response = new ErrorResponse(401, e.getMessage());
-        return response;
+        return new ErrorResponse(401, e.getMessage());
     }
 }

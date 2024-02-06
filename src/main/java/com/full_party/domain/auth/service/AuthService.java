@@ -26,8 +26,6 @@ public class AuthService {
 
         Map<String, Object> claims = jwtTokenizer.getClaims(refreshToken).getBody();
 
-        Set<Map.Entry<String, Object>> entrySet = claims.entrySet();
-
         User user = userService.findUser((String) claims.get("sub"));
         tokenMap.put("accessToken", issueAccessToken(user));
         tokenMap.put("refreshToken", issueRefreshToken(user));

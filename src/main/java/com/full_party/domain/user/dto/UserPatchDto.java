@@ -21,8 +21,7 @@ public class UserPatchDto {
     private String profileImage;
     private String address;
     private Coordinates coordinates;
-
-    private Date birth; // Deprecate 예정
-    private Gender gender; // Deprecate 예정
-    private String mobile; // Deprecate 예정
+    private Date birth;
+    private Gender gender;
+    private String mobile;
 }
